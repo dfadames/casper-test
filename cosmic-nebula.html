@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosmic Nebula — Interactive Particle Universe</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #050510; }
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    cursor: crosshair;
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  canvas { position: absolute; top: 0; left: 0; display: block; }
+
+  /* FPS counter — bottom-right, very subtle */
+  #fps {
+    position: fixed; bottom: 16px; right: 20px;
+    color: rgba(180,200,255,0.35); font-size: 12px;
+    pointer-events: none; z-index: 10;
+    letter-spacing: 0.5px;
+  }
+
+  /* Hint overlay — centered at bottom */
+  #hints {
+    position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%);
+    color: rgba(180,200,255,0.55); font-size: 13px;
+    pointer-events: none; z-index: 10; text-align: center;
+    transition: opacity 0.8s ease;
+    letter-spacing: 0.3px; line-height: 1.6;
+  }
+  #hints span { opacity: 0.7; }
+  #hints kbd {
+    display: inline-block; padding: 1px 7px; margin: 0 2px;
+    border: 1px solid rgba(180,200,255,0.25); border-radius: 4px;
+    font-family: inherit; font-size: 11px;
+    background: rgba(20,30,60,0.4);
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="fps">FPS —</div>
+<div id="hints">
+  <span>Press <kbd>1</kbd>–<kbd>5</kbd> color themes &ensp;|&ensp; <kbd>Space</kbd> auto-pilot &ensp;|&ensp; <kbd>R</kbd> reset</span>
+</div>
+
+<script>
+/* ================================================================
+   COSMIC NEBULA — Interactive Particle Universe
+   ================================================================
+   Sections:
+     1. Configuration Constants
+     2. Color Themes
+     3. Utility Functions
+     4. Spatial Hash Grid
+     5. Starfield System
+     6. Particle Class
+     7. Burst Particle Class
+     8. Flow Field
+     9. Mouse & Touch State
+    10. Auto-Pilot Formations
+    11. Core Engine (update + render)
+    12. UI & FPS Counter
+    13. Event Handlers
+    14. Initialization & Animation Loop
+   ================================================================ */
+
+/* ================================================================
+   1. CONFIGURATION CONSTANTS
+   ================================================================ */
+const CFG = {
+  PARTICLE_COUNT:    550,
+  CONNECTION_DIST:   150,
+  CONNECTION_OPACITY: 0.45,
+  MOUSE_RADIUS:      220,
+  MOUSE_FORCE:       0.6,
+  BURST_COUNT:       28,
+  BURST_LIFETIME_MS: 1400,
+  FLOW_SPEED:        0.9,
+  PARTICLE_SPEED_MIN: 0.2,
+  PARTICLE_SPEED_MAX: 2.2,
+  STAR_COUNT:        220,
+  AUTO_IDLE_MS:      3000,
+  FORMATION_CHANGE:  9000,
+  COLOR_LERP_SPEED:  0.02,
+  CELL_SIZE:         150,
+};
+
+/* ================================================================
+   2. COLOR THEMES
+       Each theme: name, background, particle palette, star color
+   ================================================================ */
+const THEMES = [
+  {
+    name: 'Deep Nebula',
+    bg:   [5, 5, 20],
+    palette: [
+      [100, 140, 255], [140, 80, 220], [180, 120, 255],
+      [80, 160, 230],  [60, 100, 200],  [200, 150, 220],
+      [120, 180, 240], [220, 100, 180], [160, 200, 255],
+      [140, 60, 200],  [100, 200, 230], [240, 140, 255],
+    ],
+    star: [150, 170, 220],
+    accent: [255, 180, 100],
+  },
+  {
+    name: 'Solar Flare',
+    bg:   [12, 3, 0],
+    palette: [
+      [255, 120, 40],  [240, 80, 20],   [255, 180, 60],
+      [220, 140, 30],  [255, 100, 10],  [200, 60, 30],
+      [255, 160, 80],  [180, 90, 25],   [240, 130, 50],
+      [255, 200, 100], [220, 110, 35],  [255, 140, 20],
+    ],
+    star: [200, 150, 80],
+    accent: [255, 220, 140],
+  },
+  {
+    name: 'Aurora',
+    bg:   [3, 10, 6],
+    palette: [
+      [40, 220, 160],  [60, 200, 140],  [80, 240, 180],
+      [30, 180, 200],  [50, 210, 170],  [70, 230, 190],
+      [20, 160, 150],  [90, 220, 130],  [45, 190, 210],
+      [55, 240, 160],  [35, 170, 180], [100, 200, 150],
+    ],
+    star: [120, 200, 170],
+    accent: [180, 255, 200],
+  },
+  {
+    name: 'Void',
+    bg:   [2, 2, 8],
+    palette: [
+      [130, 160, 230], [160, 180, 240], [100, 140, 220],
+      [180, 200, 250], [120, 150, 210], [140, 170, 235],
+      [110, 130, 215], [170, 190, 245], [150, 165, 225],
+      [125, 145, 218], [165, 185, 242], [135, 155, 228],
+    ],
+    star: [140, 150, 190],
+    accent: [200, 210, 255],
+  },
+  {
+    name: 'Supernova',
+    bg:   [8, 2, 14],
+    palette: [
+      [220, 80, 180],  [180, 60, 200],  [255, 100, 160],
+      [200, 70, 220],  [240, 90, 140],  [160, 80, 240],
+      [255, 120, 200], [190, 50, 180],  [230, 110, 170],
+      [210, 60, 190],  [250, 130, 150], [170, 90, 210],
+    ],
+    star: [200, 140, 200],
+    accent: [255, 200, 240],
+  },
+];
+
+/* ================================================================
+   3. UTILITY FUNCTIONS
+   ================================================================ */
+const lerp   = (a, b, t) => a + (b - a) * t;
+const dist2  = (x1, y1, x2, y2) => (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1);
+const dist   = (x1, y1, x2, y2) => Math.sqrt(dist2(x1, y1, x2, y2));
+const clamp  = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+/* ================================================================
+   4. SPATIAL HASH GRID
+       Divides canvas into cells for O(n) neighbor lookups
+   ================================================================ */
+class SpatialHash {
+  constructor(cellSize) {
+    this.cellSize = cellSize;
+    this.grid = new Map();
+  }
+  key(x, y) {
+    return `${Math.floor(x / this.cellSize)},${Math.floor(y / this.cellSize)}`;
+  }
+  clear() { this.grid.clear(); }
+  insert(particle) {
+    const k = this.key(particle.x, particle.y);
+    if (!this.grid.has(k)) this.grid.set(k, []);
+    this.grid.get(k).push(particle);
+  }
+  /** Returns all particles within one cell radius of (cx,cy) */
+  query(cx, cy) {
+    const results = [];
+    const cx0 = Math.floor(cx / this.cellSize);
+    const cy0 = Math.floor(cy / this.cellSize);
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        const cell = this.grid.get(`${cx0+dx},${cy0+dy}`);
+        if (cell) results.push(...cell);
+      }
+    }
+    return results;
+  }
+}
+
+/* ================================================================
+   5. STARFIELD SYSTEM
+       Parallax background layer with twinkling stars
+   ================================================================ */
+class Starfield {
+  constructor(count, w, h) {
+    this.stars = [];
+    this.resize(count, w, h);
+  }
+  resize(count, w, h) {
+    this.stars = [];
+    for (let i = 0; i < count; i++) {
+      this.stars.push({
+        x:     Math.random() * w,
+        y:     Math.random() * h,
+        r:     Math.random() * 1.8 + 0.3,
+        base:  Math.random() * 0.5 + 0.3,
+        phase: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.02 + 0.005,
+        // parallax depth factor (0=static, 1=full mouse follow)
+        depth: Math.random() * 0.3 + 0.05,
+      });
+    }
+    this.w = w; this.h = h;
+  }
+  /** Returns star positions offset by mouse parallax */
+  getParallaxed(mx, my) {
+    // mx, my in range [-1, 1] from screen center
+    return this.stars.map(s => ({
+      x: s.x + mx * s.depth * 40,
+      y: s.y + my * s.depth * 40,
+      r: s.r,
+      alpha: s.base + Math.sin(s.phase) * 0.25,
+    }));
+  }
+  update() {
+    for (const s of this.stars) s.phase += s.speed;
+  }
+}
+
+/* ================================================================
+   6. PARTICLE CLASS
+       Core nebula particle with flow-field motion and color lerp
+   ================================================================ */
+class Particle {
+  constructor(w, h) {
+    this.x  = Math.random() * w;
+    this.y  = Math.random() * h;
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.vy = (Math.random() - 0.5) * 0.3;
+    this.r  = Math.random() * 2.5 + 1.0;
+    this.color    = [180, 140, 240]; // current displayed color
+    this.target   = [180, 140, 240]; // lerp toward this
+    this.baseSize  = this.r;
+    this.pulsePhase = Math.random() * Math.PI * 2;
+    this.pulseSpeed = Math.random() * 0.03 + 0.01;
+    this.flowPhase  = Math.random() * Math.PI * 2;
+  }
+
+  /** Assign a new target color from the theme palette */
+  setThemeColor(palette) {
+    const c = palette[Math.floor(Math.random() * palette.length)];
+    this.target = [c[0], c[1], c[2]];
+  }
+
+  /** Update color lerp toward target */
+  updateColor(speed) {
+    this.color[0] = lerp(this.color[0], this.target[0], speed);
+    this.color[1] = lerp(this.color[1], this.target[1], speed);
+    this.color[2] = lerp(this.color[2], this.target[2], speed);
+  }
+
+  update(dt, w, h, flowFn, t) {
+    // --- Flow field steering ---
+    const angle = flowFn(this.x, this.y, t + this.flowPhase);
+    const fx = Math.cos(angle) * CFG.FLOW_SPEED;
+    const fy = Math.sin(angle) * CFG.FLOW_SPEED;
+
+    this.vx += fx * dt * 0.05;
+    this.vy += fy * dt * 0.05;
+
+    // Speed damping
+    const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+    if (speed > CFG.PARTICLE_SPEED_MAX) {
+      this.vx = (this.vx / speed) * CFG.PARTICLE_SPEED_MAX;
+      this.vy = (this.vy / speed) * CFG.PARTICLE_SPEED_MAX;
+    }
+    if (speed < CFG.PARTICLE_SPEED_MIN && speed > 0.001) {
+      this.vx = (this.vx / speed) * CFG.PARTICLE_SPEED_MIN;
+      this.vy = (this.vy / speed) * CFG.PARTICLE_SPEED_MIN;
+    }
+
+    // Move
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Wrap edges with smooth transition
+    const margin = 40;
+    if (this.x < -margin) this.x = w + margin;
+    if (this.x > w + margin) this.x = -margin;
+    if (this.y < -margin) this.y = h + margin;
+    if (this.y > h + margin) this.y = -margin;
+
+    // Pulse size
+    this.pulsePhase += this.pulseSpeed;
+    this.r = this.baseSize + Math.sin(this.pulsePhase) * 0.6;
+
+    // Color transition
+    this.updateColor(CFG.COLOR_LERP_SPEED);
+  }
+
+  /** Draw this particle (glow dot) */
+  draw(ctx) {
+    const [r, g, b] = this.color;
+    const alpha = 0.85;
+
+    // Outer glow
+    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r * 3);
+    grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+    grad.addColorStop(0.4, `rgba(${r},${g},${b},${alpha * 0.5})`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r * 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Core
+    ctx.fillStyle = `rgba(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)},0.9)`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/* ================================================================
+   7. BURST PARTICLE CLASS
+       Short-lived spark emitted on click — fades and shrinks out
+   ================================================================ */
+class BurstParticle {
+  constructor(x, y, palette) {
+    this.x = x; this.y = y;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 4 + 1;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.life  = CFG.BURST_LIFETIME_MS;
+    this.maxLife = CFG.BURST_LIFETIME_MS;
+    const c = palette[Math.floor(Math.random() * palette.length)];
+    this.color = [c[0], c[1], c[2]];
+    this.r = Math.random() * 2.5 + 1.5;
+  }
+  update(dt) {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vx *= 0.98;
+    this.vy *= 0.98;
+    this.life -= dt * 16.67; // dt in frame units
+    this.r *= 0.995;
+  }
+  get alive() { return this.life > 0; }
+  get alpha() { return clamp(this.life / this.maxLife, 0, 1); }
+  draw(ctx) {
+    const a = this.alpha;
+    const [r, g, b] = this.color;
+    // Glow
+    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r * 2.5);
+    grad.addColorStop(0, `rgba(${r},${g},${b},${a})`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r * 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = `rgba(${Math.min(255,r+60)},${Math.min(255,g+60)},${Math.min(255,b+60)},${a})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/* ================================================================
+   8. FLOW FIELD
+       Multi-octave pseudo-noise for organic swirling motion
+   ================================================================ */
+function flowAngle(x, y, t) {
+  return (
+    Math.sin(x * 0.002 + t * 0.25) * Math.cos(y * 0.003 + t * 0.18) * Math.PI * 0.9 +
+    Math.sin(x * 0.005 - y * 0.004 + t * 0.12) * Math.PI * 0.5 +
+    Math.cos(x * 0.008 + y * 0.006 - t * 0.08) * Math.PI * 0.3 +
+    Math.sin(y * 0.003 + x * 0.003 + t * 0.06) * Math.PI * 0.15
+  );
+}
+
+/* ================================================================
+   9. MOUSE & TOUCH STATE
+   ================================================================ */
+const pointer = {
+  active: false,
+  x: 0, y: 0,            // canvas coords
+  nx: 0, ny: 0,          // normalized [-1,1] from center
+  lastMoveTime: 0,
+};
+
+/* ================================================================
+   10. AUTO-PILOT FORMATIONS
+       Drift particles into beautiful arrangements when idle
+   ================================================================ */
+function generateSpiral(w, h, count, t) {
+  const cx = w / 2, cy = h / 2;
+  const points = [];
+  const spiralTightness = 0.15;
+  for (let i = 0; i < count; i++) {
+    const angle = i * spiralTightness + t * 0.0003;
+    const radius = (i / count) * Math.min(w, h) * 0.45 + 20;
+    points.push({
+      x: cx + Math.cos(angle) * radius,
+      y: cy + Math.sin(angle) * radius,
+    });
+  }
+  return points;
+}
+
+function generateConcentricRings(w, h, count, t) {
+  const cx = w / 2, cy = h / 2;
+  const points = [];
+  const rings = 5;
+  const perRing = Math.floor(count / rings);
+  const maxR = Math.min(w, h) * 0.4;
+  for (let r = 0; r < rings; r++) {
+    const radius = ((r + 1) / rings) * maxR;
+    for (let i = 0; i < perRing; i++) {
+      const angle = (i / perRing) * Math.PI * 2 + r * 0.5 + t * 0.0002;
+      points.push({
+        x: cx + Math.cos(angle) * radius,
+        y: cy + Math.sin(angle) * radius,
+      });
+    }
+  }
+  return points.slice(0, count);
+}
+
+function generateWave(w, h, count, t) {
+  const points = [];
+  const rows = 22;
+  const cols = Math.ceil(count / rows);
+  for (let i = 0; i < count; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const baseX = (col / (cols - 1)) * (w - 80) + 40;
+    const baseY = (row / (rows - 1)) * (h - 80) + 40;
+    const offset = Math.sin(baseX * 0.008 + t * 0.0004) * 50 +
+                   Math.cos(baseY * 0.006 + t * 0.0003) * 30;
+    points.push({ x: baseX, y: baseY + offset });
+  }
+  return points.slice(0, count);
+}
+
+function generateClusters(w, h, count, t) {
+  const points = [];
+  const clusterCount = 6;
+  const clusterCenters = [];
+  for (let c = 0; c < clusterCount; c++) {
+    clusterCenters.push({
+      x: w * 0.2 + Math.random() * w * 0.6,
+      y: h * 0.2 + Math.random() * h * 0.6,
+      spread: 50 + Math.random() * 100,
+    });
+  }
+  for (let i = 0; i < count; i++) {
+    const cc = clusterCenters[i % clusterCount];
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.random() * cc.spread;
+    points.push({
+      x: cc.x + Math.cos(angle) * radius + Math.sin(t * 0.0002 + i) * 15,
+      y: cc.y + Math.sin(angle) * radius + Math.cos(t * 0.0003 + i) * 15,
+    });
+  }
+  return points;
+}
+
+const FORMATIONS = [generateSpiral, generateConcentricRings, generateWave, generateClusters];
+
+const autoPilot = {
+  enabled: false,
+  active: false,       // true when actually applying forces
+  formationIdx: 0,
+  targets: [],
+  lastSwitch: 0,
+  force: 0.03,
+};
+
+function updateAutoPilot(now, particles, w, h, t) {
+  if (!autoPilot.enabled) {
+    autoPilot.active = false;
+    autoPilot.targets = [];
+    return;
+  }
+
+  const idle = now - pointer.lastMoveTime;
+  if (idle < CFG.AUTO_IDLE_MS) {
+    autoPilot.active = false;
+    return;
+  }
+
+  if (!autoPilot.active) {
+    autoPilot.active = true;
+    autoPilot.formationIdx = (autoPilot.formationIdx + 1) % FORMATIONS.length;
+    autoPilot.lastSwitch = now;
+    autoPilot.targets = FORMATIONS[autoPilot.formationIdx](w, h, particles.length, t);
+  }
+
+  // Cycle formations periodically
+  if (now - autoPilot.lastSwitch > CFG.FORMATION_CHANGE) {
+    autoPilot.formationIdx = (autoPilot.formationIdx + 1) % FORMATIONS.length;
+    autoPilot.lastSwitch = now;
+    autoPilot.targets = FORMATIONS[autoPilot.formationIdx](w, h, particles.length, t);
+  }
+
+  // Apply gentle spring force toward formation targets
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    const target = autoPilot.targets[i] || { x: w/2, y: h/2 };
+    const dx = target.x - p.x;
+    const dy = target.y - p.y;
+    p.vx += dx * autoPilot.force * 0.05;
+    p.vy += dy * autoPilot.force * 0.05;
+  }
+}
+
+/* ================================================================
+   11. CORE ENGINE
+       Update physics, render frame
+   ================================================================ */
+let canvas, ctx, W, H;
+let particles = [];
+let burstParticles = [];
+let starfield;
+let spatialHash;
+let themeIdx = 0;
+let currentTheme;
+let animTime = 0;
+let lastFrameTime = 0;
+
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = W * (window.devicePixelRatio || 1);
+  canvas.height = H * (window.devicePixelRatio || 1);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+  if (starfield) starfield.resize(CFG.STAR_COUNT, W, H);
+}
+
+function applyTheme(idx) {
+  themeIdx = clamp(idx, 0, THEMES.length - 1);
+  currentTheme = THEMES[themeIdx];
+  for (const p of particles) p.setThemeColor(currentTheme.palette);
+}
+
+function spawnBurst(x, y) {
+  for (let i = 0; i < CFG.BURST_COUNT; i++) {
+    burstParticles.push(new BurstParticle(x, y, currentTheme.palette));
+  }
+}
+
+function update(dt) {
+  const now = performance.now();
+  if (!dt || dt > 100) dt = 16.67; // clamp to prevent spiral of death
+  const t = animTime;
+
+  // Mouse gravity
+  if (pointer.active) {
+    const mx = pointer.x, my = pointer.y;
+    for (const p of particles) {
+      const dx = mx - p.x;
+      const dy = my - p.y;
+      const d2 = dx*dx + dy*dy;
+      if (d2 < CFG.MOUSE_RADIUS * CFG.MOUSE_RADIUS && d2 > 1) {
+        const d = Math.sqrt(d2);
+        const force = (1 - d / CFG.MOUSE_RADIUS) * CFG.MOUSE_FORCE;
+        // Tangential swirl + radial pull
+        const radialX = dx / d;
+        const radialY = dy / d;
+        p.vx += radialX * force * 0.08;
+        p.vy += radialY * force * 0.08;
+        // Add tangential swirl
+        p.vx += -radialY * force * 0.03;
+        p.vy +=  radialX * force * 0.03;
+      }
+    }
+  }
+
+  // Auto-pilot
+  updateAutoPilot(now, particles, W, H, t);
+
+  // Update particles
+  for (const p of particles) p.update(dt, W, H, flowAngle, t);
+
+  // Update burst particles
+  for (const b of burstParticles) b.update(dt);
+  burstParticles = burstParticles.filter(b => b.alive);
+
+  // Update starfield twinkle
+  starfield.update();
+
+  // Build spatial hash for constellation lines
+  spatialHash.clear();
+  for (const p of particles) spatialHash.insert(p);
+
+  animTime += dt;
+  lastFrameTime = now;
+}
+
+function render() {
+  const bg = currentTheme.bg;
+  // Clear with background color (slight fade for trails)
+  ctx.fillStyle = `rgba(${bg[0]},${bg[1]},${bg[2]},0.15)`;
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw starfield (parallax based on mouse)
+  const stars = starfield.getParallaxed(pointer.nx, pointer.ny);
+  const starCol = currentTheme.star;
+  for (const s of stars) {
+    ctx.fillStyle = `rgba(${starCol[0]},${starCol[1]},${starCol[2]},${s.alpha})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Draw constellation lines between nearby particles
+  const connDist2 = CFG.CONNECTION_DIST * CFG.CONNECTION_DIST;
+  for (const p of particles) {
+    const neighbors = spatialHash.query(p.x, p.y);
+    for (const n of neighbors) {
+      if (n === p) continue;
+      // Only draw each pair once (use pointer comparison)
+      if (n.x < p.x || (n.x === p.x && n.y < p.y)) continue;
+      const d2 = dist2(p.x, p.y, n.x, n.y);
+      if (d2 < connDist2) {
+        const d = Math.sqrt(d2);
+        const alpha = (1 - d / CFG.CONNECTION_DIST) * CFG.CONNECTION_OPACITY;
+        // Blend colors of the two particles
+        const r = Math.floor((p.color[0] + n.color[0]) / 2);
+        const g = Math.floor((p.color[1] + n.color[1]) / 2);
+        const b = Math.floor((p.color[2] + n.color[2]) / 2);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw particles
+  for (const p of particles) p.draw(ctx);
+
+  // Draw burst particles
+  for (const b of burstParticles) b.draw(ctx);
+
+  // Mouse cursor glow
+  if (pointer.active) {
+    const [r, g, b] = currentTheme.accent;
+    const grad = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 60);
+    grad.addColorStop(0, `rgba(${r},${g},${b},0.12)`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(pointer.x, pointer.y, 60, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/* ================================================================
+   12. UI & FPS COUNTER
+   ================================================================ */
+const fpsEl = document.getElementById('fps');
+const hintsEl = document.getElementById('hints');
+let fpsFrames = 0;
+let fpsLastTime = performance.now();
+let fpsValue = 0;
+
+function updateFPS(now) {
+  fpsFrames++;
+  if (now - fpsLastTime >= 1000) {
+    fpsValue = Math.round(fpsFrames / ((now - fpsLastTime) / 1000));
+    fpsFrames = 0;
+    fpsLastTime = now;
+    fpsEl.textContent = `FPS ${fpsValue}`;
+  }
+}
+
+function showHint(msg, duration = 3000) {
+  hintsEl.innerHTML = msg;
+  hintsEl.style.opacity = '1';
+  clearTimeout(hintsEl._timeout);
+  hintsEl._timeout = setTimeout(() => { hintsEl.style.opacity = '0'; }, duration);
+}
+
+/* ================================================================
+   13. EVENT HANDLERS
+   ================================================================ */
+function onMouseMove(e) {
+  pointer.active = true;
+  pointer.x = e.clientX;
+  pointer.y = e.clientY;
+  pointer.nx = (e.clientX / W) * 2 - 1;
+  pointer.ny = (e.clientY / H) * 2 - 1;
+  pointer.lastMoveTime = performance.now();
+}
+
+function onMouseLeave() {
+  pointer.active = false;
+}
+
+function onClick(e) {
+  spawnBurst(e.clientX, e.clientY);
+  pointer.lastMoveTime = performance.now();
+}
+
+function onTouchStart(e) {
+  e.preventDefault();
+  const t = e.touches[0];
+  pointer.active = true;
+  pointer.x = t.clientX;
+  pointer.y = t.clientY;
+  pointer.nx = (t.clientX / W) * 2 - 1;
+  pointer.ny = (t.clientY / H) * 2 - 1;
+  pointer.lastMoveTime = performance.now();
+  spawnBurst(t.clientX, t.clientY);
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  const t = e.touches[0];
+  pointer.active = true;
+  pointer.x = t.clientX;
+  pointer.y = t.clientY;
+  pointer.nx = (t.clientX / W) * 2 - 1;
+  pointer.ny = (t.clientY / H) * 2 - 1;
+  pointer.lastMoveTime = performance.now();
+}
+
+function onTouchEnd(e) {
+  pointer.active = false;
+}
+
+function onKeyDown(e) {
+  pointer.lastMoveTime = performance.now(); // reset idle timer on any key
+
+  switch (e.key) {
+    case '1': applyTheme(0); showHint('Theme: <span style="color:#a0b0ff">Deep Nebula</span>'); break;
+    case '2': applyTheme(1); showHint('Theme: <span style="color:#ff9955">Solar Flare</span>'); break;
+    case '3': applyTheme(2); showHint('Theme: <span style="color:#55dd99">Aurora</span>'); break;
+    case '4': applyTheme(3); showHint('Theme: <span style="color:#99aadd">Void</span>'); break;
+    case '5': applyTheme(4); showHint('Theme: <span style="color:#dd77cc">Supernova</span>'); break;
+    case 'r': case 'R':
+      // Reset: re-spawn all particles
+      for (let i = 0; i < particles.length; i++) {
+        particles[i] = new Particle(W, H);
+        particles[i].setThemeColor(currentTheme.palette);
+      }
+      burstParticles = [];
+      showHint('Reset &#10003;');
+      break;
+    case ' ':
+      e.preventDefault();
+      autoPilot.enabled = !autoPilot.enabled;
+      showHint(autoPilot.enabled ? 'Auto-pilot <span style="color:#88dd88">ON</span>' : 'Auto-pilot <span style="color:#dd8888">OFF</span>');
+      break;
+  }
+}
+
+/* ================================================================
+   14. INITIALIZATION & ANIMATION LOOP
+   ================================================================ */
+function init() {
+  canvas = document.getElementById('c');
+  resize();
+
+  // Create starfield
+  starfield = new Starfield(CFG.STAR_COUNT, W, H);
+
+  // Create spatial hash
+  spatialHash = new SpatialHash(CFG.CELL_SIZE);
+
+  // Create particles
+  particles = [];
+  for (let i = 0; i < CFG.PARTICLE_COUNT; i++) {
+    particles.push(new Particle(W, H));
+  }
+
+  // Apply initial theme
+  applyTheme(0);
+
+  // Set initial burst particles
+  burstParticles = [];
+
+  // Event listeners
+  window.addEventListener('resize', () => { resize(); });
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseleave', onMouseLeave);
+  window.addEventListener('click', onClick);
+  window.addEventListener('touchstart', onTouchStart, { passive: false });
+  window.addEventListener('touchmove',  onTouchMove,  { passive: false });
+  window.addEventListener('touchend',   onTouchEnd);
+  window.addEventListener('keydown', onKeyDown);
+
+  // Start animation loop
+  lastFrameTime = performance.now();
+  requestAnimationFrame(loop);
+
+  // Show initial hint
+  showHint(
+    'Move mouse to attract particles &ensp;|&ensp; Click to burst &ensp;|&ensp; <kbd>1</kbd>–<kbd>5</kbd> themes &ensp;|&ensp; <kbd>Space</kbd> auto-pilot &ensp;|&ensp; <kbd>R</kbd> reset',
+    8000
+  );
+}
+
+function loop(timestamp) {
+  const dt = timestamp - lastFrameTime;
+  lastFrameTime = timestamp;
+
+  update(dt);
+  render();
+  updateFPS(timestamp);
+
+  requestAnimationFrame(loop);
+}
+
+// Go!
+init();
+</script>
+</body>
+</html>
