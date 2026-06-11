@@ -26,3 +26,21 @@ chmod +x sysinfo
 ----------------------------------------
   ■ ■ ■ ■ ■ ■ ■ ■
 ```
+
+## Cosmic Nebula
+
+**cosmic-nebula.html** — an interactive particle universe visualization. Open in any modern browser.
+
+- 550+ particles with organic flow-field motion and constellation connections
+- Mouse cursor attracts and swirls nearby particles; click to spawn a burst of light
+- 5 color themes (keys 1–5): Deep Nebula, Solar Flare, Aurora, Void, Supernova
+- Auto-pilot mode (Space): particles drift into spirals, rings, waves, and clusters when idle
+- Parallax starfield, FPS counter, full touch support, responsive layout
+- Zero dependencies — pure HTML5 Canvas + vanilla JavaScript
+
+```bash
+# Just open it:
+firefox cosmic-nebula.html
+# or
+chromium cosmic-nebula.html
+```
