@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean Depths — Interactive Dolphin Pod</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #020b1a; }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    cursor: pointer;
+  }
+  canvas { display: block; position: absolute; top: 0; left: 0; }
+
+  #title {
+    position: fixed; top: 28px; left: 50%; transform: translateX(-50%);
+    color: rgba(140,210,255,0.7); font-size: 26px; letter-spacing: 4px;
+    pointer-events: none; z-index: 10; text-shadow: 0 0 30px rgba(80,160,240,0.5);
+  }
+  #hint {
+    position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
+    color: rgba(120,190,230,0.5); font-size: 13px; pointer-events: none; z-index: 10;
+    letter-spacing: 1.5px;
+  }
+  .bubble-count {
+    position: fixed; top: 80px; right: 30px;
+    color: rgba(120,190,230,0.4); font-size: 12px; pointer-events: none; z-index: 10;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="title">OCEAN DEPTHS</div>
+<div id="hint">click · move · scroll — swim with the pod</div>
+<div id="info" class="bubble-count"></div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const info = document.getElementById('info');
+
+let W, H, mouseX, mouseY, mouseDown = false;
+let time = 0;
+const TWO_PI = Math.PI * 2;
+
+// --- Resize ---
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// --- Mouse / Touch ---
+canvas.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+canvas.addEventListener('mousedown', () => mouseDown = true);
+canvas.addEventListener('mouseup', () => mouseDown = false);
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  mouseX = e.touches[0].clientX;
+  mouseY = e.touches[0].clientY;
+  mouseDown = true;
+});
+canvas.addEventListener('touchend', () => mouseDown = false);
+canvas.addEventListener('wheel', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+// --- Light rays ---
+class LightRay {
+  constructor() {
+    this.reset();
+    this.y = Math.random() * H;
+  }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = -20;
+    this.speed = 0.3 + Math.random() * 0.8;
+    this.width = 20 + Math.random() * 60;
+    this.opacity = 0.02 + Math.random() * 0.06;
+    this.length = 60 + Math.random() * 200;
+    this.sway = Math.random() * 0.02;
+    this.swayPhase = Math.random() * TWO_PI;
+  }
+  update() {
+    this.y += this.speed;
+    if (this.y > H + 100) { this.reset(); this.y = -20; }
+  }
+  draw(ctx) {
+    const sway = Math.sin(time * 0.001 + this.swayPhase) * 30;
+    const grad = ctx.createLinearGradient(this.x + sway, this.y, this.x + sway, this.y + this.length);
+    grad.addColorStop(0, `rgba(160,220,255,${this.opacity})`);
+    grad.addColorStop(1, 'rgba(160,220,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(this.x + sway - this.width/2, this.y, this.width, this.length);
+  }
+}
+
+// --- Bubbles ---
+class Bubble {
+  constructor(x, y) {
+    this.x = x || Math.random() * W;
+    this.y = y || Math.random() * H;
+    this.r = 1 + Math.random() * 6;
+    this.speed = 0.2 + Math.random() * 1.2;
+    this.wobble = Math.random() * TWO_PI;
+    this.wobbleSpeed = 0.01 + Math.random() * 0.03;
+    this.opacity = 0.15 + Math.random() * 0.3;
+    this.swayAmp = 0.3 + Math.random() * 0.8;
+  }
+  update() {
+    this.y -= this.speed;
+    this.wobble += this.wobbleSpeed;
+    this.x += Math.sin(this.wobble) * this.swayAmp;
+    if (this.y < -20) { this.y = H + 20; this.x = Math.random() * W; }
+  }
+  draw(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, TWO_PI);
+    ctx.fillStyle = `rgba(180,220,255,${this.opacity})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255,255,255,${this.opacity * 0.5})`;
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+}
+
+// --- Particle (small sparkle) ---
+class Particle {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2 - 1;
+    this.life = 1;
+    this.decay = 0.008 + Math.random() * 0.03;
+    this.r = 0.5 + Math.random() * 1.5;
+    this.hue = 180 + Math.random() * 40;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life -= this.decay;
+  }
+  draw(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, TWO_PI);
+    ctx.fillStyle = `hsla(${this.hue}, 70%, 70%, ${this.life})`;
+    ctx.fill();
+  }
+  get alive() { return this.life > 0; }
+}
+
+// --- Dolphin ---
+class Dolphin {
+  constructor(index) {
+    this.index = index;
+    this.x = W * 0.3 + Math.random() * W * 0.4;
+    this.y = H * 0.2 + Math.random() * H * 0.5;
+    this.vx = (Math.random() - 0.5) * 1.5;
+    this.vy = (Math.random() - 0.5) * 1;
+    this.angle = Math.random() * TWO_PI;
+    this.targetAngle = this.angle;
+    this.scale = 0.6 + Math.random() * 0.6;
+    this.colorHue = 195 + Math.random() * 20;
+    this.breath = 0;
+    this.breathSpeed = 0.02 + Math.random() * 0.03;
+    this.tailPhase = Math.random() * TWO_PI;
+    this.wanderTimer = 0;
+    this.wanderInterval = 60 + Math.random() * 200;
+    this.bodySegments = [];
+    for (let i = 0; i < 12; i++) this.bodySegments.push({ x: this.x, y: this.y });
+  }
+
+  update() {
+    time++;
+
+    // Wander behavior
+    this.wanderTimer++;
+    if (this.wanderTimer > this.wanderInterval) {
+      this.wanderTimer = 0;
+      this.wanderInterval = 100 + Math.random() * 300;
+      this.targetAngle += (Math.random() - 0.5) * Math.PI * 0.8;
+    }
+
+    // Mouse attraction / repulsion
+    const dxMouse = mouseX - this.x;
+    const dyMouse = mouseY - this.y;
+    const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+    if (distMouse < 250) {
+      if (mouseDown) {
+        // Attract when clicking
+        const force = 0.02;
+        this.vx += (dxMouse / distMouse) * force;
+        this.vy += (dyMouse / distMouse) * force;
+      } else {
+        // Gentle follow
+        const force = 0.003;
+        this.vx += (dxMouse / distMouse) * force * (1 - distMouse / 250);
+        this.vy += (dyMouse / distMouse) * force * (1 - distMouse / 250);
+      }
+    }
+
+    // Wander force
+    this.vx += Math.cos(this.targetAngle) * 0.008;
+    this.vy += Math.sin(this.targetAngle) * 0.008;
+
+    // Damping
+    this.vx *= 0.995;
+    this.vy *= 0.995;
+
+    // Speed limit
+    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    const maxSpeed = 3;
+    if (speed > maxSpeed) {
+      this.vx = (this.vx / speed) * maxSpeed;
+      this.vy = (this.vy / speed) * maxSpeed;
+    }
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Boundaries (wrap with margin)
+    const margin = 80;
+    if (this.x < -margin) this.x = W + margin;
+    if (this.x > W + margin) this.x = -margin;
+    if (this.y < -margin) this.y = H + margin;
+    if (this.y > H + margin) this.y = -margin;
+
+    // Angle follows velocity
+    if (speed > 0.1) {
+      this.targetAngle = Math.atan2(this.vy, this.vx);
+    }
+    // Smooth angle
+    let angleDiff = this.targetAngle - this.angle;
+    while (angleDiff > Math.PI) angleDiff -= TWO_PI;
+    while (angleDiff < -Math.PI) angleDiff += TWO_PI;
+    this.angle += angleDiff * 0.08;
+
+    // Breathing
+    this.breath += this.breathSpeed;
+
+    // Tail wag
+    this.tailPhase += 0.12;
+
+    // Update body segment trail
+    this.bodySegments.pop();
+    this.bodySegments.unshift({ x: this.x, y: this.y });
+  }
+
+  draw(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.scale(this.scale, this.scale * (1 + Math.sin(this.breath) * 0.06));
+
+    const bodyLen = 36;
+    const bodyH = 10;
+    const hue = this.colorHue;
+
+    // Tail
+    const tailWave = Math.sin(this.tailPhase) * 0.6;
+    ctx.fillStyle = `hsl(${hue - 8}, 40%, 45%)`;
+    ctx.beginPath();
+    ctx.moveTo(-bodyLen * 0.85, -2);
+    ctx.quadraticCurveTo(-bodyLen * 0.95, -bodyH * 1.2 + tailWave * 4, -bodyLen * 1.15, -bodyH * 0.5 + tailWave * 8);
+    ctx.quadraticCurveTo(-bodyLen * 0.95, bodyH * 0.1, -bodyLen * 0.85, 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-bodyLen * 0.85, -2);
+    ctx.quadraticCurveTo(-bodyLen * 0.95, bodyH * 1.2 + tailWave * 4, -bodyLen * 1.15, bodyH * 0.5 - tailWave * 8);
+    ctx.quadraticCurveTo(-bodyLen * 0.95, -bodyH * 0.1, -bodyLen * 0.85, 2);
+    ctx.closePath();
+    ctx.fill();
+
+    // Body
+    const bodyGrad = ctx.createLinearGradient(bodyLen * 0.4, -bodyH, bodyLen * 0.4, bodyH);
+    bodyGrad.addColorStop(0, `hsl(${hue}, 50%, 55%)`);
+    bodyGrad.addColorStop(0.5, `hsl(${hue}, 45%, 65%)`);
+    bodyGrad.addColorStop(1, `hsl(${hue}, 35%, 75%)`);
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(bodyLen * 0.4, 0);
+    ctx.quadraticCurveTo(bodyLen * 0.15, -bodyH * 0.7, -bodyLen * 0.3, -bodyH * 0.6);
+    ctx.quadraticCurveTo(-bodyLen * 0.65, -bodyH * 0.2, -bodyLen * 0.85, -2);
+    ctx.lineTo(-bodyLen * 0.85, 2);
+    ctx.quadraticCurveTo(-bodyLen * 0.65, bodyH * 0.2, -bodyLen * 0.3, bodyH * 0.6);
+    ctx.quadraticCurveTo(bodyLen * 0.15, bodyH * 0.7, bodyLen * 0.4, 0);
+    ctx.fill();
+
+    // Dorsal fin
+    ctx.fillStyle = `hsl(${hue - 5}, 42%, 48%)`;
+    ctx.beginPath();
+    ctx.moveTo(bodyLen * 0.1, -bodyH * 0.3);
+    ctx.quadraticCurveTo(bodyLen * 0.05, -bodyH * 1.6, -bodyLen * 0.15, -bodyH * 0.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // Pectoral fins
+    ctx.beginPath();
+    ctx.moveTo(bodyLen * 0.2, bodyH * 0.2);
+    ctx.quadraticCurveTo(bodyLen * 0.25, bodyH * 1.2, bodyLen * 0.05, bodyH * 0.9);
+    ctx.quadraticCurveTo(bodyLen * 0.15, bodyH * 0.4, bodyLen * 0.2, bodyH * 0.2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(bodyLen * 0.2, -bodyH * 0.2);
+    ctx.quadraticCurveTo(bodyLen * 0.25, -bodyH * 1.2, bodyLen * 0.05, -bodyH * 0.9);
+    ctx.quadraticCurveTo(bodyLen * 0.15, -bodyH * 0.4, bodyLen * 0.2, -bodyH * 0.2);
+    ctx.fill();
+
+    // Head / rostrum (beak)
+    ctx.fillStyle = `hsl(${hue}, 50%, 60%)`;
+    ctx.beginPath();
+    ctx.moveTo(bodyLen * 0.4, 0);
+    ctx.quadraticCurveTo(bodyLen * 0.55, -bodyH * 0.2, bodyLen * 0.7, -bodyH * 0.15);
+    ctx.lineTo(bodyLen * 0.7, bodyH * 0.15);
+    ctx.quadraticCurveTo(bodyLen * 0.55, bodyH * 0.2, bodyLen * 0.4, 0);
+    ctx.fill();
+
+    // Eye
+    const eyeX = bodyLen * 0.3;
+    const eyeY = -bodyH * 0.25;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(eyeX, eyeY, 2.5, 0, TWO_PI);
+    ctx.fill();
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(eyeX + 0.8, eyeY, 1.4, 0, TWO_PI);
+    ctx.fill();
+
+    // Smile line
+    ctx.strokeStyle = `hsl(${hue - 5}, 35%, 50%)`;
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(bodyLen * 0.35, bodyH * 0.1);
+    ctx.quadraticCurveTo(bodyLen * 0.45, bodyH * 0.3, bodyLen * 0.65, bodyH * 0.05);
+    ctx.stroke();
+
+    // Body trail segments
+    for (let i = 0; i < this.bodySegments.length; i++) {
+      const seg = this.bodySegments[i];
+      const alpha = 0.03 * (1 - i / this.bodySegments.length);
+      ctx.beginPath();
+      ctx.arc(-bodyLen * 0.3 + i * 4, 0, 1.5 + (1 - i / this.bodySegments.length) * 3, 0, TWO_PI);
+      ctx.fillStyle = `hsla(${hue}, 50%, 70%, ${alpha})`;
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  get xPos() { return this.x; }
+  get yPos() { return this.y; }
+}
+
+// --- Kelp ---
+class Kelp {
+  constructor() {
+    this.x = Math.random() * W;
+    this.baseY = H + 10;
+    this.segments = 8 + Math.floor(Math.random() * 14);
+    this.segLen = 8 + Math.random() * 14;
+    this.swayBase = Math.random() * TWO_PI;
+    this.swaySpeed = 0.003 + Math.random() * 0.006;
+    this.hue = 100 + Math.random() * 40;
+    this.width = 2 + Math.random() * 4;
+    this.opacity = 0.3 + Math.random() * 0.4;
+  }
+
+  draw(ctx) {
+    let x = this.x;
+    let y = this.baseY;
+    ctx.strokeStyle = `hsla(${this.hue}, 50%, 35%, ${this.opacity})`;
+    ctx.lineWidth = this.width;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+
+    for (let i = 0; i < this.segments; i++) {
+      const t = i / this.segments;
+      const sway = Math.sin(time * this.swaySpeed + this.swayBase + t * 3) * (15 + t * 25);
+      x = this.x + sway;
+      y = this.baseY - i * this.segLen;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+}
+
+// --- Scene setup ---
+const lightRays = Array.from({ length: 18 }, () => new LightRay());
+const bubbles = Array.from({ length: 60 }, () => new Bubble());
+const particles = [];
+const kelps = Array.from({ length: 12 }, () => new Kelp());
+const dolphins = Array.from({ length: 5 }, (_, i) => new Dolphin(i));
+
+// Spawn sparkle particles near dolphins
+function spawnParticles(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    particles.push(new Particle(x, y));
+  }
+}
+
+// --- Render loop ---
+function draw() {
+  // Underwater gradient background
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrad.addColorStop(0, '#010a20');
+  bgGrad.addColorStop(0.3, '#021530');
+  bgGrad.addColorStop(0.7, '#041d3d');
+  bgGrad.addColorStop(1, '#022040');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Sandy bottom
+  const sandGrad = ctx.createLinearGradient(0, H - 50, 0, H);
+  sandGrad.addColorStop(0, 'rgba(60,80,100,0)');
+  sandGrad.addColorStop(0.5, 'rgba(40,60,80,0.2)');
+  sandGrad.addColorStop(1, 'rgba(30,50,70,0.35)');
+  ctx.fillStyle = sandGrad;
+  ctx.fillRect(0, H - 50, W, 50);
+
+  // Kelp
+  kelps.forEach(k => k.draw(ctx));
+
+  // Light rays
+  lightRays.forEach(r => { r.update(); r.draw(ctx); });
+
+  // Bubbles
+  bubbles.forEach(b => { b.update(); b.draw(ctx); });
+
+  // Dolphins
+  dolphins.forEach(d => { d.update(); d.draw(ctx); });
+
+  // Spawn particles occasionally from dolphins
+  if (Math.random() < 0.15) {
+    const d = dolphins[Math.floor(Math.random() * dolphins.length)];
+    spawnParticles(d.xPos, d.yPos, 2);
+  }
+
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw(ctx);
+    if (!particles[i].alive) particles.splice(i, 1);
+  }
+
+  // Caustic light overlay
+  ctx.globalCompositeOperation = 'overlay';
+  for (let i = 0; i < 6; i++) {
+    const cx = (Math.sin(time * 0.0007 + i * 1.7) * 0.5 + 0.5) * W;
+    const cy = (Math.cos(time * 0.0005 + i * 2.1) * 0.5 + 0.5) * H * 0.6;
+    const rad = 60 + Math.sin(time * 0.002 + i) * 30;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+    grad.addColorStop(0, 'rgba(140,210,255,0.06)');
+    grad.addColorStop(1, 'rgba(140,210,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(cx - rad, cy - rad, rad * 2, rad * 2);
+  }
+  ctx.globalCompositeOperation = 'source-over';
+
+  // Info
+  info.textContent = `${dolphins.length} dolphins · ${bubbles.length} bubbles · ${particles.length} sparkles`;
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+</body>
+</html>
