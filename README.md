@@ -1,46 +1,37 @@
 # casper-test
 
-System info tool — lightweight alternative to neofetch/screenfetch.
+Interactive browser experiments & visual demos — served via **GitHub Pages**.
 
-## Usage
+🌐 **Live site:** [dfadames.github.io/casper-test](https://dfadames.github.io/casper-test)
+
+## 🧠 AI Neural Network
+**ai.html** — Interactive neural network visualization. Nodes connect, fire, and learn in real-time.
+
+## 🌌 Cosmic Nebula
+**cosmic-nebula.html** — 550+ particles in an organic flow-field universe with mouse-attract, constellation connections, 5 color themes, and auto-pilot mode. Zero dependencies — pure HTML5 Canvas + vanilla JS.
+
+## 🖥️ sysinfo
+Lightweight system info tool (alternative to neofetch/screenfetch).
 
 ```bash
 chmod +x sysinfo
 ./sysinfo
 ```
 
-## Example output
+## Structure
 
 ```
-  nick@casper
-----------------------------------------
-  OS:        Linux 7.0.0-15-generic
-  Kernel:    7.0.0-15-generic
-  Arch:      x86_64
-  Uptime:    3d 7h 22m
-  Shell:     bash
-  CPU:       AMD Ryzen 5 5600X
-  Memory:    4.2Gi/16Gi
-  Disk (/):  45G/120G (38%)
-  Packages:  1024 deb, 12 snap
-----------------------------------------
-  ■ ■ ■ ■ ■ ■ ■ ■
+main branch (deployed to GitHub Pages)
+├── index.html           # Landing page
+├── ai.html              # AI neural network demo
+├── cosmic-nebula.html   # Particle universe demo
+├── .nojekyll            # Skip Jekyll processing
+├── README.md
+└── sysinfo              # CLI system info tool
 ```
 
-## Cosmic Nebula
+## GitHub Pages
 
-**cosmic-nebula.html** — an interactive particle universe visualization. Open in any modern browser.
+This repo uses GitHub Pages from the root of the `main` branch. Any HTML file pushed to `main` is publicly served. The `.nojekyll` file ensures raw HTML is served without Jekyll processing.
 
-- 550+ particles with organic flow-field motion and constellation connections
-- Mouse cursor attracts and swirls nearby particles; click to spawn a burst of light
-- 5 color themes (keys 1–5): Deep Nebula, Solar Flare, Aurora, Void, Supernova
-- Auto-pilot mode (Space): particles drift into spirals, rings, waves, and clusters when idle
-- Parallax starfield, FPS counter, full touch support, responsive layout
-- Zero dependencies — pure HTML5 Canvas + vanilla JavaScript
-
-```bash
-# Just open it:
-firefox cosmic-nebula.html
-# or
-chromium cosmic-nebula.html
-```
+To keep the published site stable, develop new features on feature branches and merge to `main` only when ready to publish.
