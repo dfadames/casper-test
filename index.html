@@ -3,255 +3,235 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>casper-test — Interactive Demos</title>
+  <title>casper-test</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --border: #e5e5e5;
+      --border-hover: #c5c5c5;
+      --text: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --accent: #3b3b3b;
+      --accent-hover: #1a1a1a;
+    }
 
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: #0a0a0f;
-      color: #e0e0e0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+      padding: 4rem 1.5rem 3rem;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .container {
-      max-width: 760px;
+      max-width: 680px;
       width: 100%;
-      text-align: center;
+    }
+
+    /* ── Header ──────────────────────────── */
+    header {
+      margin-bottom: 3.5rem;
     }
 
     h1 {
-      font-size: 3.2rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #818cf8, #c084fc, #60a5fa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
       margin-bottom: 0.5rem;
     }
 
     .subtitle {
-      font-size: 1.1rem;
-      color: #888;
-      margin-bottom: 3rem;
-      font-weight: 400;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 480px;
     }
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3rem;
+    /* ── Separator ──────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
     }
 
-    .card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 2rem 1.5rem;
+    /* ── Project list ───────────────────── */
+    .project-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-item {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
       text-decoration: none;
       color: inherit;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
+      transition: padding 0.2s ease, background 0.2s ease;
+      margin: 0 -0.5rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      border-radius: 6px;
     }
 
-    .card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 16px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
+    .project-item:hover {
+      background: var(--surface);
+      border-bottom-color: var(--border-hover);
     }
 
-    .card:nth-child(1)::before {
-      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 70%);
+    .project-item:last-child {
+      border-bottom: 1px solid var(--border);
     }
 
-    .card:nth-child(2)::before {
-      background: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15), transparent 70%);
+    .project-left {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      min-width: 0;
     }
 
-    .card:nth-child(3)::before {
-      background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 70%);
-    }
-
-    .card:nth-child(3) .badge {
-      background: rgba(59, 130, 246, 0.2);
-      color: #93c5fd;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(255, 255, 255, 0.18);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    .card:hover::before {
-      opacity: 1;
-    }
-
-    .card-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      display: block;
-      position: relative;
-      z-index: 1;
-    }
-
-    .card h2 {
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .card p {
-      font-size: 0.9rem;
-      color: #999;
-      line-height: 1.5;
-      position: relative;
-      z-index: 1;
-    }
-
-    .card .badge {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
+    .project-index {
+      font-size: 0.8rem;
       font-weight: 500;
-      position: relative;
-      z-index: 1;
+      color: var(--text-muted);
+      min-width: 1.2rem;
+      font-variant-numeric: tabular-nums;
     }
 
-    .card:nth-child(1) .badge {
-      background: rgba(99, 102, 241, 0.2);
-      color: #a5b4fc;
+    .project-info {
+      min-width: 0;
     }
 
-    .card:nth-child(2) .badge {
-      background: rgba(168, 85, 247, 0.2);
-      color: #c4b5fd;
+    .project-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.15rem;
     }
 
-    .footer {
-      color: #555;
+    .project-desc {
       font-size: 0.85rem;
-      margin-top: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
     }
 
-    .footer a {
-      color: #777;
+    .project-tag {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      margin-left: 1rem;
+    }
+
+    /* ── Footer ─────────────────────────── */
+    footer {
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--text-secondary);
       text-decoration: none;
-      border-bottom: 1px solid #333;
-      transition: all 0.2s;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.15s, border-color 0.15s;
     }
 
-    .footer a:hover {
-      color: #a5b4fc;
-      border-color: #a5b4fc;
+    footer a:hover {
+      color: var(--text);
+      border-color: var(--text-secondary);
     }
 
-    /* Starfield background */
-    canvas#stars {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
+    /* ── Responsive ─────────────────────── */
+    @media (max-width: 520px) {
+      body { padding: 2rem 1rem 2rem; }
+      .project-item { flex-direction: column; gap: 0.35rem; }
+      .project-tag { margin-left: 2.2rem; }
     }
 
-    .container { position: relative; z-index: 1; }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111111;
+        --surface: #1a1a1a;
+        --border: #2a2a2a;
+        --border-hover: #3a3a3a;
+        --text: #e5e5e5;
+        --text-secondary: #999999;
+        --text-muted: #666666;
+        --accent: #d4d4d4;
+        --accent-hover: #ffffff;
+      }
+    }
   </style>
 </head>
 <body>
-  <canvas id="stars"></canvas>
-
   <div class="container">
-    <h1>casper-test</h1>
-    <p class="subtitle">Interactive browser experiments &amp; visual demos</p>
+    <header>
+      <h1>casper-test</h1>
+      <p class="subtitle">
+        A collection of interactive browser-based simulations and visualisations,
+        built with vanilla HTML5 Canvas and JavaScript.
+      </p>
+    </header>
 
-    <div class="cards">
-      <a href="ai.html" class="card">
-        <span class="card-icon">🧠</span>
-        <h2>AI Neural Network</h2>
-        <p>Interactive neural network visualization. Explore how nodes connect, fire, and learn in real-time.</p>
-        <span class="badge">Interactive</span>
+    <div class="divider"></div>
+
+    <ul class="project-list">
+      <a href="ai.html" class="project-item">
+        <div class="project-left">
+          <span class="project-index">01</span>
+          <div class="project-info">
+            <div class="project-name">AI Neural Network</div>
+            <div class="project-desc">Real-time neural network visualisation. Nodes connect, propagate signals, and adapt their weights.</div>
+          </div>
+        </div>
+        <span class="project-tag">Interactive</span>
       </a>
 
-      <a href="cosmic-nebula.html" class="card">
-        <span class="card-icon">🌌</span>
-        <h2>Cosmic Nebula</h2>
-        <p>550+ particles in an organic flow-field universe. Mouse-attract, constellations, and 5 color themes.</p>
-        <span class="badge">Particles</span>
+      <a href="cosmic-nebula.html" class="project-item">
+        <div class="project-left">
+          <span class="project-index">02</span>
+          <div class="project-info">
+            <div class="project-name">Cosmic Nebula</div>
+            <div class="project-desc">Particle flow-field universe with 550+ bodies, constellation links, and five colour themes.</div>
+          </div>
+        </div>
+        <span class="project-tag">Particles</span>
       </a>
 
-      <a href="gravity.html" class="card">
-        <span class="card-icon">🪐</span>
-        <h2>Gravity</h2>
-        <p>N-body gravitational simulation. Click to spawn, drag for velocity. Watch particles orbit, attract, and merge.</p>
-        <span class="badge">Physics</span>
+      <a href="gravity.html" class="project-item">
+        <div class="project-left">
+          <span class="project-index">03</span>
+          <div class="project-info">
+            <div class="project-name">Gravity</div>
+            <div class="project-desc">N-body gravitational simulator. Particles orbit, attract, and merge under Newtonian physics.</div>
+          </div>
+        </div>
+        <span class="project-tag">Physics</span>
       </a>
-    </div>
+    </ul>
 
-    <p class="footer">
-      <a href="https://github.com/dfadames/casper-test" target="_blank" rel="noopener">View source on GitHub</a>
-    </p>
+    <footer>
+      <a href="https://github.com/dfadames/casper-test" target="_blank" rel="noopener">Source on GitHub</a>
+    </footer>
   </div>
-
-  <script>
-    // Subtle animated starfield background
-    const canvas = document.getElementById('stars');
-    const ctx = canvas.getContext('2d');
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    const stars = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.5 + 0.5,
-      speed: Math.random() * 0.3 + 0.1,
-      opacity: Math.random() * 0.6 + 0.2,
-      phase: Math.random() * Math.PI * 2
-    }));
-
-    function draw(time) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const s of stars) {
-        s.y += s.speed;
-        if (s.y > canvas.height + 5) { s.y = -5; s.x = Math.random() * canvas.width; }
-
-        const twinkle = Math.sin(time * 0.001 + s.phase) * 0.3 + 0.7;
-        const alpha = s.opacity * twinkle;
-
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(180, 190, 255, ${alpha})`;
-        ctx.fill();
-      }
-
-      requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-  </script>
 </body>
 </html>
