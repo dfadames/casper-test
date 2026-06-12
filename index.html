@@ -5,233 +5,322 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>casper-test</title>
   <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* ── Reset & Base ────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #fafafa;
-      --surface: #ffffff;
-      --border: #e5e5e5;
-      --border-hover: #c5c5c5;
-      --text: #1a1a1a;
-      --text-secondary: #666666;
-      --text-muted: #999999;
-      --accent: #3b3b3b;
-      --accent-hover: #1a1a1a;
+      --bg:        #f7f5f2;
+      --surface:   #ffffff;
+      --border:    #e0dcd5;
+      --text:      #1c1c1c;
+      --muted:     #8a857c;
+      --accent:    #1c1c1c;
+      --hairline:  #d5d0c7;
+      --hover-bg:  #f0ede8;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:        #12100e;
+        --surface:   #1c1a18;
+        --border:    #2e2b27;
+        --text:      #e8e4dd;
+        --muted:     #7a756e;
+        --accent:    #e8e4dd;
+        --hairline:  #2e2b27;
+        --hover-bg:  #221f1c;
+      }
     }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 4rem 1.5rem 3rem;
+      padding: 5rem 2rem 4rem;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.03'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px;
     }
 
     .container {
-      max-width: 680px;
+      max-width: 640px;
       width: 100%;
     }
 
     /* ── Header ──────────────────────────── */
     header {
-      margin-bottom: 3.5rem;
+      margin-bottom: 4rem;
     }
 
     h1 {
-      font-size: 1.75rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 2.25rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
       color: var(--text);
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.05s ease-out forwards;
     }
 
     .subtitle {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      max-width: 480px;
+      font-size: 0.925rem;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 440px;
+      font-weight: 400;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s ease-out forwards;
     }
 
-    /* ── Separator ──────────────────────── */
-    .divider {
+    /* ── Section header ──────────────────── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.35s ease-out forwards;
+    }
+
+    .section-label span {
+      font-size: 0.675rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
       height: 1px;
-      background: var(--border);
-      margin: 2rem 0;
+      background: var(--hairline);
     }
 
-    /* ── Project list ───────────────────── */
+    /* ── Project list ────────────────────── */
     .project-list {
       list-style: none;
       display: flex;
       flex-direction: column;
+      counter-reset: project;
     }
 
     .project-item {
+      counter-increment: project;
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      padding: 1rem 0;
-      border-bottom: 1px solid var(--border);
+      padding: 1.35rem 1rem;
+      border-top: 1px solid var(--hairline);
       text-decoration: none;
       color: inherit;
-      transition: padding 0.2s ease, background 0.2s ease;
+      position: relative;
+      transition: background 0.25s ease, padding-left 0.25s ease;
+      border-radius: 4px;
       margin: 0 -0.5rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-      border-radius: 6px;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease-out forwards;
+    }
+
+    .project-item:nth-child(1) { animation-delay: 0.5s; }
+    .project-item:nth-child(2) { animation-delay: 0.58s; }
+    .project-item:nth-child(3) { animation-delay: 0.66s; }
+
+    .project-item:last-child {
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .project-item::before {
+      content: counter(project, decimal-leading-zero);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 2rem;
+      transition: color 0.25s ease;
     }
 
     .project-item:hover {
-      background: var(--surface);
-      border-bottom-color: var(--border-hover);
+      background: var(--hover-bg);
+      padding-left: 1.5rem;
     }
 
-    .project-item:last-child {
-      border-bottom: 1px solid var(--border);
+    .project-item:hover::before {
+      color: var(--text);
     }
 
-    .project-left {
-      display: flex;
-      align-items: baseline;
-      gap: 1rem;
-      min-width: 0;
+    /* Subtle left accent line on hover */
+    .project-item::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      height: 60%;
+      width: 2px;
+      background: var(--text);
+      transform: scaleY(0);
+      transition: transform 0.25s ease;
+      border-radius: 1px;
     }
 
-    .project-index {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      min-width: 1.2rem;
-      font-variant-numeric: tabular-nums;
+    .project-item:hover::after {
+      transform: scaleY(1);
     }
 
     .project-info {
+      flex: 1;
       min-width: 0;
     }
 
     .project-name {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 600;
       color: var(--text);
-      margin-bottom: 0.15rem;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.2rem;
+      transition: color 0.25s ease;
     }
 
     .project-desc {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.45;
+      font-size: 0.825rem;
+      color: var(--muted);
+      line-height: 1.5;
+      transition: color 0.25s ease;
+    }
+
+    .project-item:hover .project-desc {
+      color: var(--text);
+      opacity: 0.7;
     }
 
     .project-tag {
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       font-weight: 500;
-      color: var(--text-muted);
+      color: var(--muted);
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
       white-space: nowrap;
-      margin-left: 1rem;
+      margin-left: 1.5rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--hairline);
+      border-radius: 3px;
+      transition: border-color 0.25s ease, color 0.25s ease;
     }
 
-    /* ── Footer ─────────────────────────── */
+    .project-item:hover .project-tag {
+      border-color: var(--text);
+      color: var(--text);
+    }
+
+    /* ── Footer ──────────────────────────── */
     footer {
-      margin-top: 3rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      margin-top: 3.5rem;
+      font-size: 0.775rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s ease-out forwards;
     }
 
     footer a {
-      color: var(--text-secondary);
+      color: var(--muted);
       text-decoration: none;
-      border-bottom: 1px solid var(--border);
-      transition: color 0.15s, border-color 0.15s;
+      padding-bottom: 1px;
+      border-bottom: 1px solid var(--hairline);
+      transition: color 0.2s, border-color 0.2s;
     }
 
     footer a:hover {
       color: var(--text);
-      border-color: var(--text-secondary);
+      border-color: var(--text);
     }
 
-    /* ── Responsive ─────────────────────── */
-    @media (max-width: 520px) {
-      body { padding: 2rem 1rem 2rem; }
-      .project-item { flex-direction: column; gap: 0.35rem; }
-      .project-tag { margin-left: 2.2rem; }
+    footer .dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--hairline);
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111111;
-        --surface: #1a1a1a;
-        --border: #2a2a2a;
-        --border-hover: #3a3a3a;
-        --text: #e5e5e5;
-        --text-secondary: #999999;
-        --text-muted: #666666;
-        --accent: #d4d4d4;
-        --accent-hover: #ffffff;
+    /* ── Animations ──────────────────────── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
       }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Responsive ──────────────────────── */
+    @media (max-width: 520px) {
+      body { padding: 2.5rem 1rem 3rem; }
+      h1 { font-size: 1.75rem; }
+      .project-item { padding-left: 0.75rem; padding-right: 0.75rem; }
+      .project-tag { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="container">
+
     <header>
       <h1>casper-test</h1>
       <p class="subtitle">
-        A collection of interactive browser-based simulations and visualisations,
+        Interactive browser-based simulations and visualisations,
         built with vanilla HTML5 Canvas and JavaScript.
       </p>
     </header>
 
-    <div class="divider"></div>
+    <div class="section-label">
+      <span>Projects</span>
+    </div>
 
     <ul class="project-list">
       <a href="ai.html" class="project-item">
-        <div class="project-left">
-          <span class="project-index">01</span>
-          <div class="project-info">
-            <div class="project-name">AI Neural Network</div>
-            <div class="project-desc">Real-time neural network visualisation. Nodes connect, propagate signals, and adapt their weights.</div>
-          </div>
+        <div class="project-info">
+          <div class="project-name">AI Neural Network</div>
+          <div class="project-desc">Real-time neural network visualisation — nodes connect, propagate signals, and adapt their weights.</div>
         </div>
         <span class="project-tag">Interactive</span>
       </a>
 
       <a href="cosmic-nebula.html" class="project-item">
-        <div class="project-left">
-          <span class="project-index">02</span>
-          <div class="project-info">
-            <div class="project-name">Cosmic Nebula</div>
-            <div class="project-desc">Particle flow-field universe with 550+ bodies, constellation links, and five colour themes.</div>
-          </div>
+        <div class="project-info">
+          <div class="project-name">Cosmic Nebula</div>
+          <div class="project-desc">Particle flow-field universe — 550+ bodies, constellation links, and five colour themes.</div>
         </div>
         <span class="project-tag">Particles</span>
       </a>
 
       <a href="gravity.html" class="project-item">
-        <div class="project-left">
-          <span class="project-index">03</span>
-          <div class="project-info">
-            <div class="project-name">Gravity</div>
-            <div class="project-desc">N-body gravitational simulator. Particles orbit, attract, and merge under Newtonian physics.</div>
-          </div>
+        <div class="project-info">
+          <div class="project-name">Gravity</div>
+          <div class="project-desc">N-body gravitational simulator — particles orbit, attract, and merge under Newtonian physics.</div>
         </div>
         <span class="project-tag">Physics</span>
       </a>
     </ul>
 
     <footer>
-      <a href="https://github.com/dfadames/casper-test" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="https://github.com/dfadames/casper-test" target="_blank" rel="noopener">GitHub</a>
+      <span class="dot"></span>
+      <span>dfadames/casper-test</span>
     </footer>
+
   </div>
 </body>
 </html>
