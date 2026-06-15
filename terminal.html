@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cybernetic Hacker Terminal</title>
+  <style>
+    /* ── Reset & Base ────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #0a0a0a;
+      --green:  #00ff41;
+      --green-dim: #00cc34;
+      --green-dark: #005a1a;
+      --font:   'Courier New', Courier, monospace;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: var(--font);
+      color: var(--green);
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: unset;
+    }
+
+    /* ── CRT Container ───────────────────── */
+    .crt {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ── Scanline overlay ────────────────── */
+    .crt::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.12) 2px,
+        rgba(0, 0, 0, 0.12) 4px
+      );
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* ── Screen flicker ──────────────────── */
+    .crt::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 60%,
+        rgba(0, 0, 0, 0.35) 100%
+      );
+      pointer-events: none;
+      z-index: 11;
+      animation: flicker 0.15s infinite alternate;
+    }
+
+    @keyframes flicker {
+      0%   { opacity: 0.04; }
+      25%  { opacity: 0.02; }
+      50%  { opacity: 0.05; }
+      75%  { opacity: 0.01; }
+      100% { opacity: 0.03; }
+    }
+
+    /* ── Text glow ───────────────────────── */
+    .terminal-text {
+      text-shadow:
+        0 0 5px var(--green),
+        0 0 10px var(--green-dark),
+        0 0 20px rgba(0, 255, 65, 0.3);
+    }
+
+    /* ── Terminal output area ────────────── */
+    #terminal {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      padding: 1rem;
+      overflow-y: auto;
+      font-size: 16px;
+      line-height: 1.5;
+      word-break: break-all;
+      scroll-behavior: smooth;
+    }
+
+    /* ── Scrollbar styling ───────────────── */
+    #terminal::-webkit-scrollbar {
+      width: 6px;
+    }
+    #terminal::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+    #terminal::-webkit-scrollbar-thumb {
+      background: var(--green-dark);
+      border-radius: 3px;
+    }
+
+    /* ── Output lines ────────────────────── */
+    .output-line {
+      white-space: pre-wrap;
+      margin-bottom: 2px;
+    }
+
+    .output-error {
+      color: #ff4444;
+      text-shadow: 0 0 5px #ff0000;
+    }
+
+    .output-dim {
+      color: var(--green-dark);
+    }
+
+    .output-highlight {
+      color: #ffffff;
+      text-shadow: 0 0 8px #ffffff;
+    }
+
+    /* ── Input line ──────────────────────── */
+    .input-line {
+      display: flex;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .prompt {
+      color: var(--green);
+      text-shadow: 0 0 5px var(--green);
+      white-space: pre;
+      flex-shrink: 0;
+    }
+
+    #cmd-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--green);
+      font-family: var(--font);
+      font-size: 16px;
+      caret-color: var(--green);
+      text-shadow: 0 0 5px var(--green);
+      min-width: 10px;
+    }
+
+    #cmd-input::selection {
+      background: var(--green-dark);
+      color: var(--bg);
+    }
+
+    /* ── Blinking block cursor ───────────── */
+    .cursor-block {
+      display: inline-block;
+      width: 0.6em;
+      height: 1.1em;
+      background: var(--green);
+      vertical-align: text-bottom;
+      margin-left: 1px;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0; }
+    }
+
+    /* ── Matrix canvas ───────────────────── */
+    #matrix-canvas {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 20;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #matrix-canvas.active {
+      display: block;
+      opacity: 1;
+    }
+
+    #matrix-canvas.fading {
+      opacity: 0;
+    }
+
+    /* ── Boot overlay ────────────────────── */
+    #boot-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s ease;
+    }
+
+    #boot-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #boot-content {
+      font-family: var(--font);
+      color: var(--green);
+      font-size: 18px;
+      text-shadow: 0 0 5px var(--green);
+      line-height: 1.8;
+      text-align: center;
+      max-width: 90vw;
+    }
+
+    /* ── Responsive ──────────────────────── */
+    @media (max-width: 768px) {
+      #terminal {
+        font-size: 14px;
+        padding: 0.75rem;
+      }
+      #cmd-input {
+        font-size: 14px;
+      }
+      #boot-content {
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #terminal {
+        font-size: 12px;
+        padding: 0.5rem;
+      }
+      #cmd-input {
+        font-size: 12px;
+      }
+      #boot-content {
+        font-size: 13px;
+      }
+      .prompt {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Boot sequence overlay -->
+  <div id="boot-overlay">
+    <div id="boot-content"></div>
+  </div>
+
+  <!-- Terminal -->
+  <div class="crt">
+    <div id="terminal"></div>
+  </div>
+
+  <!-- Matrix rain canvas -->
+  <canvas id="matrix-canvas"></canvas>
+
+  <script>
+  (function() {
+    /* ================================================================
+       TERMINAL STATE
+       ================================================================ */
+
+    var terminal   = document.getElementById('terminal');
+    var cmdInput   = document.getElementById('cmd-input');
+    var bootOverlay = document.getElementById('boot-overlay');
+    var bootContent = document.getElementById('boot-content');
+    var matrixCanvas = document.getElementById('matrix-canvas');
+    var matrixCtx    = matrixCanvas.getContext('2d');
+
+    var commandHistory = [];
+    var historyIndex   = -1;
+    var matrixRunning  = false;
+    var matrixTimer    = null;
+    var matrixAnimFrame = null;
+    var inputFocused   = false;
+
+    /* ================================================================
+       BOOT SEQUENCE
+       ================================================================ */
+
+    var bootMessages = [
+      '[OK] Initializing kernel...',
+      '[OK] Mounting filesystems...',
+      '[OK] Starting network interfaces...',
+      '[OK] Loading security modules...',
+      '[OK] System ready.'
+    ];
+
+    function runBootSequence() {
+      var i = 0;
+      function showNext() {
+        if (i < bootMessages.length) {
+          var line = document.createElement('div');
+          line.textContent = bootMessages[i];
+          bootContent.appendChild(line);
+          i++;
+          setTimeout(showNext, 450 + Math.random() * 200);
+        } else {
+          setTimeout(finishBoot, 500);
+        }
+      }
+      showNext();
+    }
+
+    function finishBoot() {
+      bootOverlay.classList.add('hidden');
+      setTimeout(function() {
+        bootOverlay.style.display = 'none';
+      }, 600);
+      createInputLine();
+    }
+
+    /* ================================================================
+       OUTPUT HELPERS
+       ================================================================ */
+
+    function createOutputLine(text, className) {
+      var div = document.createElement('div');
+      div.className = 'output-line terminal-text' + (className ? ' ' + className : '');
+      // Safe: text is always a static predefined string from command handlers
+      div.innerHTML = text;
+      terminal.appendChild(div);
+    }
+
+    function createSafeOutputLine(text, className) {
+      // For any output that might contain user input — use textContent
+      var div = document.createElement('div');
+      div.className = 'output-line terminal-text' + (className ? ' ' + className : '');
+      div.textContent = text;
+      terminal.appendChild(div);
+    }
+
+    function appendRawHTML(html) {
+      // Only for static predefined strings — never user input
+      var div = document.createElement('div');
+      div.className = 'output-line terminal-text';
+      div.innerHTML = html;
+      terminal.appendChild(div);
+    }
+
+    function scrollToBottom() {
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    /* ================================================================
+       INPUT LINE
+       ================================================================ */
+
+    function createInputLine() {
+      // Remove any existing input line
+      var existingInput = terminal.querySelector('.input-line');
+      if (existingInput) { existingInput.remove(); }
+
+      var line = document.createElement('div');
+      line.className = 'input-line terminal-text';
+
+      var prompt = document.createElement('span');
+      prompt.className = 'prompt';
+      prompt.textContent = 'visitor@hermes:~$ ';
+
+      cmdInput = document.createElement('input');
+      cmdInput.type = 'text';
+      cmdInput.id = 'cmd-input';
+      cmdInput.autocomplete = 'off';
+      cmdInput.spellcheck = false;
+
+      line.appendChild(prompt);
+      line.appendChild(cmdInput);
+      terminal.appendChild(line);
+
+      // Focus the input
+      setTimeout(function() {
+        cmdInput.focus();
+      }, 50);
+
+      bindInputEvents();
+      scrollToBottom();
+    }
+
+    function bindInputEvents() {
+      cmdInput.addEventListener('keydown', handleKeyDown);
+      cmdInput.addEventListener('focus', function() { inputFocused = true; });
+      cmdInput.addEventListener('blur', function() { inputFocused = false; });
+    }
+
+    /* ================================================================
+       KEYBOARD HANDLING
+       ================================================================ */
+
+    function handleKeyDown(e) {
+      // Ctrl+L — clear
+      if (e.ctrlKey && e.key === 'l') {
+        e.preventDefault();
+        runClear();
+        return;
+      }
+
+      // Tab — autocomplete
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        handleTabComplete();
+        return;
+      }
+
+      // Up arrow — history
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        navigateHistory(-1);
+        return;
+      }
+
+      // Down arrow — history
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        navigateHistory(1);
+        return;
+      }
+
+      // Enter — execute
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        executeCommand();
+        return;
+      }
+    }
+
+    /* ================================================================
+       HISTORY
+       ================================================================ */
+
+    function navigateHistory(direction) {
+      if (commandHistory.length === 0) { return; }
+
+      if (direction === -1) {
+        // Up: go back in history
+        if (historyIndex === -1) {
+          // Save current input as "unsaved draft" — just start from end
+          historyIndex = commandHistory.length - 1;
+        } else if (historyIndex > 0) {
+          historyIndex--;
+        }
+      } else {
+        // Down: go forward
+        if (historyIndex === -1) { return; }
+        if (historyIndex < commandHistory.length - 1) {
+          historyIndex++;
+        } else {
+          historyIndex = -1;
+          cmdInput.value = '';
+          return;
+        }
+      }
+
+      cmdInput.value = commandHistory[historyIndex];
+      // Move cursor to end
+      setTimeout(function() {
+        cmdInput.selectionStart = cmdInput.selectionEnd = cmdInput.value.length;
+      }, 0);
+    }
+
+    /* ================================================================
+       TAB AUTOCOMPLETE
+       ================================================================ */
+
+    var allCommands = [
+      'help', 'whoami', 'date', 'ls', 'neofetch',
+      'clear', 'matrix', 'hack', 'echo', 'fortune'
+    ];
+
+    function handleTabComplete() {
+      var val = cmdInput.value.trim().toLowerCase();
+      if (!val) { return; }
+
+      // Find commands that start with the input
+      var matches = allCommands.filter(function(c) {
+        return c.indexOf(val) === 0;
+      });
+
+      if (matches.length === 0) { return; }
+
+      if (matches.length === 1) {
+        // Exact match — autocomplete
+        cmdInput.value = matches[0] + ' ';
+      } else {
+        // Multiple matches — show options
+        var prefix = findCommonPrefix(matches);
+        if (prefix.length > val.length) {
+          cmdInput.value = prefix;
+        } else {
+          // Show all matches
+          var line = document.createElement('div');
+          line.className = 'output-line terminal-text output-dim';
+          line.textContent = matches.join('  ');
+          terminal.insertBefore(line, terminal.querySelector('.input-line'));
+          createInputLine();
+          cmdInput.value = val;
+        }
+      }
+
+      setTimeout(function() {
+        cmdInput.selectionStart = cmdInput.selectionEnd = cmdInput.value.length;
+      }, 0);
+    }
+
+    function findCommonPrefix(strings) {
+      if (strings.length === 0) { return ''; }
+      var prefix = strings[0];
+      for (var i = 1; i < strings.length; i++) {
+        while (strings[i].indexOf(prefix) !== 0) {
+          prefix = prefix.substring(0, prefix.length - 1);
+          if (prefix === '') { return ''; }
+        }
+      }
+      return prefix;
+    }
+
+    /* ================================================================
+       COMMAND EXECUTION
+       ================================================================ */
+
+    function executeCommand() {
+      var input = cmdInput.value.trim();
+      if (!input) {
+        // Empty input — just create a new prompt line
+        var emptyLine = document.createElement('div');
+        emptyLine.className = 'output-line terminal-text';
+        emptyLine.innerHTML = '<span class="prompt">visitor@hermes:~$ </span>';
+        terminal.insertBefore(emptyLine, terminal.querySelector('.input-line'));
+        createInputLine();
+        return;
+      }
+
+      // Add to history (avoid consecutive duplicates)
+      if (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== input) {
+        commandHistory.push(input);
+        if (commandHistory.length > 50) { commandHistory.shift(); }
+      }
+      historyIndex = -1;
+
+      // Show the command in output (safe: echo the prompt + user text via textContent)
+      var cmdLine = document.createElement('div');
+      cmdLine.className = 'output-line terminal-text';
+      var promptSpan = document.createElement('span');
+      promptSpan.className = 'prompt';
+      promptSpan.textContent = 'visitor@hermes:~$ ';
+      cmdLine.appendChild(promptSpan);
+      // User input echoed as textContent — safe
+      var cmdSpan = document.createElement('span');
+      cmdSpan.textContent = input;
+      cmdLine.appendChild(cmdSpan);
+      terminal.insertBefore(cmdLine, terminal.querySelector('.input-line'));
+
+      // Parse command and args
+      var parts = input.split(/\s+/);
+      var cmd = parts[0].toLowerCase();
+      var args = parts.slice(1);
+
+      // Route to handler
+      switch (cmd) {
+        case 'help':     runHelp(); break;
+        case 'whoami':   runWhoami(); break;
+        case 'date':     runDate(); break;
+        case 'ls':       runLs(); break;
+        case 'neofetch': runNeofetch(); break;
+        case 'clear':    runClear(); break;
+        case 'matrix':   runMatrix(); break;
+        case 'hack':     runHack(args); break;
+        case 'echo':     runEcho(args); break;
+        case 'fortune':  runFortune(); break;
+        default:         runNotFound(cmd); break;
+      }
+
+      // Re-create input line
+      createInputLine();
+    }
+
+    /* ================================================================
+       COMMAND: help
+       ================================================================ */
+
+    function runHelp() {
+      appendRawHTML(
+        '<span class="output-highlight">Available commands:</span>\n' +
+        '  <b>help</b>      — Show this help message\n' +
+        '  <b>whoami</b>    — Display current user\n' +
+        '  <b>date</b>      — Show current date and time\n' +
+        '  <b>ls</b>        — List directory contents\n' +
+        '  <b>neofetch</b>  — Display system information\n' +
+        '  <b>clear</b>     — Clear the terminal screen\n' +
+        '  <b>matrix</b>    — Activate Matrix rain (5 seconds)\n' +
+        '  <b>hack</b>      — Run hack sequence on target\n' +
+        '  <b>echo</b>      — Print text to terminal\n' +
+        '  <b>fortune</b>   — Display a random tech quote\n' +
+        '\n' +
+        '<span class="output-dim">Keyboard: ↑↓ history | Tab autocomplete | Ctrl+L clear</span>'
+      );
+    }
+
+    /* ================================================================
+       COMMAND: whoami
+       ================================================================ */
+
+    function runWhoami() {
+      createOutputLine('visitor');
+    }
+
+    /* ================================================================
+       COMMAND: date
+       ================================================================ */
+
+    function runDate() {
+      var now = new Date();
+      var str = now.toString();
+      createOutputLine(str);
+    }
+
+    /* ================================================================
+       COMMAND: ls
+       ================================================================ */
+
+    function runLs() {
+      appendRawHTML(
+        '<span class="output-highlight">/</span>\n' +
+        '├── <span class="output-highlight">bin/</span>\n' +
+        '│   ├── bash\n' +
+        '│   ├── cat\n' +
+        '│   ├── chmod\n' +
+        '│   ├── cp\n' +
+        '│   ├── ls\n' +
+        '│   └── rm\n' +
+        '├── <span class="output-highlight">etc/</span>\n' +
+        '│   ├── hostname\n' +
+        '│   ├── hosts\n' +
+        '│   ├── passwd\n' +
+        '│   └── shadow\n' +
+        '├── <span class="output-highlight">home/</span>\n' +
+        '│   └── <span class="output-highlight">visitor/</span>\n' +
+        '│       ├── <span class="output-highlight">documents/</span>\n' +
+        '│       │   ├── notes.txt\n' +
+        '│       │   └── secrets.enc\n' +
+        '│       ├── <span class="output-highlight">downloads/</span>\n' +
+        '│       ├── <span class="output-highlight">projects/</span>\n' +
+        '│       └── .bashrc\n' +
+        '├── <span class="output-highlight">tmp/</span>\n' +
+        '├── <span class="output-highlight">usr/</span>\n' +
+        '│   ├── <span class="output-highlight">bin/</span>\n' +
+        '│   ├── <span class="output-highlight">lib/</span>\n' +
+        '│   └── <span class="output-highlight">share/</span>\n' +
+        '└── <span class="output-highlight">var/</span>\n' +
+        '    ├── <span class="output-highlight">log/</span>\n' +
+        '    │   ├── syslog\n' +
+        '    │   └── auth.log\n' +
+        '    └── <span class="output-highlight">www/</span>\n' +
+        '\n' +
+        '<span class="output-dim">7 directories, 14 files</span>'
+      );
+    }
+
+    /* ================================================================
+       COMMAND: neofetch
+       ================================================================ */
+
+    function runNeofetch() {
+      appendRawHTML(
+        '<span class="output-highlight">' +
+        '        ██╗  ██╗███████╗██████╗ ███╗   ███╗███████╗███████╗\n' +
+        '        ██║  ██║██╔════╝██╔══██╗████╗ ████║██╔════╝██╔════╝\n' +
+        '        ███████║█████╗  ██████╔╝██╔████╔██║█████╗  ███████╗\n' +
+        '        ██╔══██║██╔══╝  ██╔══██╗██║╚██╔╝██║██╔══╝  ╚════██║\n' +
+        '        ██║  ██║███████╗██║  ██║██║ ╚═╝ ██║███████╗███████║\n' +
+        '        ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚══════╝\n' +
+        '</span>\n' +
+        '        visitor@hermes\n' +
+        '        ──────────────\n' +
+        '        OS: Hermes Agent OS v2.4.1\n' +
+        '        Kernel: Linux 7.0.0-15-generic\n' +
+        '        Shell: bash 5.2.15\n' +
+        '        Uptime: 42 days, 7 hours, 13 minutes\n' +
+        '        Memory: 3842 MB / 8192 MB\n' +
+        '        CPU: Quantum Neural Processor @ 4.2 GHz\n' +
+        '        Terminal: cyber-term v1.0\n' +
+        '        Theme: Phosphor Green [CRT]'
+      );
+    }
+
+    /* ================================================================
+       COMMAND: clear
+       ================================================================ */
+
+    function runClear() {
+      // Remove all children except the input line
+      var inputLine = terminal.querySelector('.input-line');
+      terminal.innerHTML = '';
+      if (inputLine) {
+        // Recreate input line fresh
+        createInputLine();
+      }
+    }
+
+    /* ================================================================
+       COMMAND: matrix
+       ================================================================ */
+
+    function runMatrix() {
+      if (matrixRunning) {
+        createOutputLine('Matrix is already running...', 'output-dim');
+        return;
+      }
+
+      matrixRunning = true;
+      createOutputLine('Initializing Matrix protocol...', 'output-dim');
+
+      // Setup canvas
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = window.innerHeight;
+      matrixCanvas.classList.add('active');
+
+      var fontSize = 14;
+      var columns = Math.floor(matrixCanvas.width / fontSize);
+      var drops = [];
+      for (var c = 0; c < columns; c++) {
+        drops[c] = Math.floor(Math.random() * -matrixCanvas.height / fontSize);
+      }
+
+      var chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン' +
+                  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' +
+                  '!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+
+      var frameCount = 0;
+      var maxFrames = 300; // ~5 seconds at 60fps
+
+      function drawMatrix() {
+        if (!matrixRunning) { return; }
+
+        // Semi-transparent black for trail effect
+        matrixCtx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+        matrixCtx.font = fontSize + 'px monospace';
+
+        for (var i = 0; i < drops.length; i++) {
+          var char = chars[Math.floor(Math.random() * chars.length)];
+          var x = i * fontSize;
+          var y = drops[i] * fontSize;
+
+          // Vary green shades
+          var green = Math.floor(Math.random() * 155 + 100);
+          matrixCtx.fillStyle = 'rgb(0, ' + green + ', 0)';
+          matrixCtx.fillText(char, x, y);
+
+          // Brighter leading character
+          if (drops[i] > 0 && Math.random() > 0.95) {
+            matrixCtx.fillStyle = '#00ff41';
+            matrixCtx.fillText(char, x, y);
+          }
+
+          // Reset drop when it reaches bottom or randomly
+          if (y > matrixCanvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+
+        frameCount++;
+        if (frameCount >= maxFrames) {
+          stopMatrix();
+          return;
+        }
+
+        matrixAnimFrame = requestAnimationFrame(drawMatrix);
+      }
+
+      matrixAnimFrame = requestAnimationFrame(drawMatrix);
+
+      // Also set a safety timeout
+      matrixTimer = setTimeout(function() {
+        if (matrixRunning) { stopMatrix(); }
+      }, 5200);
+    }
+
+    function stopMatrix() {
+      matrixRunning = false;
+      if (matrixAnimFrame) {
+        cancelAnimationFrame(matrixAnimFrame);
+        matrixAnimFrame = null;
+      }
+      if (matrixTimer) {
+        clearTimeout(matrixTimer);
+        matrixTimer = null;
+      }
+
+      matrixCanvas.classList.add('fading');
+      setTimeout(function() {
+        matrixCanvas.classList.remove('active', 'fading');
+        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+      }, 500);
+    }
+
+    /* ================================================================
+       COMMAND: hack
+       ================================================================ */
+
+    function runHack(args) {
+      var target = args.length > 0 ? args.join(' ') : 'localhost';
+
+      // Build output using DOM methods — target is user input, use textContent
+      var container = document.createElement('div');
+      container.className = 'output-line terminal-text';
+
+      function addLine(text, cls) {
+        var div = document.createElement('div');
+        div.className = cls || '';
+        div.textContent = text;
+        container.appendChild(div);
+      }
+
+      // Static strings safe for textContent
+      addLine('[*] Initializing hack sequence...', 'output-dim');
+      addLine('[*] Target: ' + target);  // user input via textContent — safe
+
+      // Insert container now so first lines appear immediately
+      terminal.insertBefore(container, terminal.querySelector('.input-line'));
+      scrollToBottom();
+
+      // Animate remaining lines
+      var lines = [
+        { text: '[*] Scanning open ports...', delay: 300, cls: 'output-dim' },
+        { text: '[*] Found: 22 (SSH), 80 (HTTP), 443 (HTTPS), 3306 (MySQL), 8080 (HTTP-ALT)', delay: 600, cls: '' },
+        { text: '[*] Probing firewall rules...', delay: 400, cls: 'output-dim' },
+        { text: '[*] Firewall bypassed — injecting payload...', delay: 500, cls: '' },
+        { text: '[*] Establishing reverse shell...', delay: 350, cls: 'output-dim' },
+        { text: '[*] Connected to ' + target + ':4444', delay: 300, cls: '' },  // target via textContent
+        { text: '[*] Exploiting CVE-2024-1337 buffer overflow...', delay: 500, cls: 'output-dim' },
+        { text: '[*] Privilege escalation successful — uid=0(root)', delay: 400, cls: '' },
+        { text: '[*] Enumerating system...', delay: 300, cls: 'output-dim' },
+        { text: '[*] Downloading /etc/shadow... [####################] 100%', delay: 600, cls: '' },
+        { text: '[+] Hack complete. Target compromised.', delay: 400, cls: 'output-highlight' }
+      ];
+
+      var currentDelay = 1300; // after first two lines
+      lines.forEach(function(item) {
+        currentDelay += item.delay;
+        setTimeout(function() {
+          // Only add if the container is still in the DOM
+          if (container.parentNode) {
+            addLineToContainer(container, item.text, item.cls);
+            scrollToBottom();
+          }
+        }, currentDelay);
+      });
+    }
+
+    function addLineToContainer(container, text, cls) {
+      var div = document.createElement('div');
+      div.className = cls || '';
+      div.textContent = text;
+      container.appendChild(div);
+    }
+
+    /* ================================================================
+       COMMAND: echo
+       ================================================================ */
+
+    function runEcho(args) {
+      // CRITICAL: user input must use textContent, never innerHTML
+      var text = args.join(' ');
+      createSafeOutputLine(text);
+    }
+
+    /* ================================================================
+       COMMAND: fortune
+       ================================================================ */
+
+    var fortunes = [
+      '"Any sufficiently advanced technology is indistinguishable from magic." — Arthur C. Clarke',
+      '"The best way to predict the future is to invent it." — Alan Kay',
+      '"Talk is cheap. Show me the code." — Linus Torvalds',
+      '"First, solve the problem. Then, write the code." — John Johnson',
+      '"Measuring programming progress by lines of code is like measuring aircraft building progress by weight." — Bill Gates',
+      '"Debugging is twice as hard as writing the code in the first place." — Brian Kernighan',
+      '"The computer was born to solve problems that did not exist before." — Bill Gates',
+      '"Simplicity is prerequisite for reliability." — Edsger W. Dijkstra',
+      '"There are two ways of constructing a software design: One way is to make it so simple that there are obviously no deficiencies, and the other way is to make it so complicated that there are no obvious deficiencies." — C.A.R. Hoare',
+      '"Programs must be written for people to read, and only incidentally for machines to execute." — Harold Abelson',
+      '"It\'s not a bug — it\'s an undocumented feature." — Anonymous',
+      '"If debugging is the process of removing software bugs, then programming must be the process of putting them in." — Edsger W. Dijkstra',
+      '"In software, the most beautiful code, the most beautiful functions, and the most beautiful programs are sometimes not there at all." — Jon Bentley',
+      '"Before software can be reusable it first has to be usable." — Ralph Johnson',
+      '"Good code is its own best documentation." — Steve McConnell',
+      '"The only way to learn a new programming language is by writing programs in it." — Dennis Ritchie',
+      '"Computers are good at following instructions, but not at reading your mind." — Donald Knuth',
+      '"Walking on water and developing software from a specification are easy if both are frozen." — Edward V. Berard',
+      '"Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live." — John Woods',
+      '"It works on my machine." — Every developer ever'
+    ];
+
+    function runFortune() {
+      var idx = Math.floor(Math.random() * fortunes.length);
+      createOutputLine(fortunes[idx]);
+    }
+
+    /* ================================================================
+       COMMAND: not found
+       ================================================================ */
+
+    function runNotFound(cmd) {
+      var line = document.createElement('div');
+      line.className = 'output-line terminal-text output-error';
+      line.textContent = 'command not found: ' + cmd;
+      terminal.insertBefore(line, terminal.querySelector('.input-line'));
+    }
+
+    /* ================================================================
+       GLOBAL CLICK-TO-FOCUS
+       ================================================================ */
+
+    document.addEventListener('click', function(e) {
+      // If clicking anywhere on the page, focus the input
+      if (cmdInput && document.contains(cmdInput)) {
+        cmdInput.focus();
+      }
+    });
+
+    /* ================================================================
+       WINDOW RESIZE — handle matrix canvas
+       ================================================================ */
+
+    window.addEventListener('resize', function() {
+      if (matrixRunning && matrixCanvas) {
+        matrixCanvas.width = window.innerWidth;
+        matrixCanvas.height = window.innerHeight;
+      }
+    });
+
+    /* ================================================================
+       INIT
+       ================================================================ */
+
+    function init() {
+      runBootSequence();
+    }
+
+    init();
+
+  })();
+  </script>
+</body>
+</html>
