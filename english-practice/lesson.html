@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Practice Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ground:#fbfbf9; --panel:#ffffff; --soft:#f3f3ef; --line:#e7e6e0; --line-2:#d2d1c9;
+  --ink:#17191a; --ink-2:#5b5e5d; --ink-3:#8c8f8c;
+  --accent:#1f6b4f; --accent-2:#2b8a67; --accent-soft:#e9f2ed;
+  --warn:#9a4a2e; --warn-soft:#f7ece6;
+  --display:"Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --body:"Figtree", ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r:12px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+p{margin:0 0 14px}
+b,strong{font-weight:600}
+.shell{max-width:640px;margin:0 auto;padding:0 20px 100px}
+
+.bar{position:sticky;top:0;z-index:20;background:rgba(251,251,249,.93);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:640px;margin:0 auto;padding:13px 20px 0;display:flex;align-items:center;gap:14px}
+.mark{font-family:var(--display);font-weight:700;font-size:14.5px;letter-spacing:-.02em}
+.mark span{color:var(--accent)}
+.bar .sp{flex:1}
+.dayn{font-family:var(--display);font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.arrows{display:flex;gap:4px}
+.arrows button{width:28px;height:28px;border:1px solid var(--line-2);border-radius:7px;
+  display:grid;place-items:center;font-size:13px;color:var(--ink-2)}
+.arrows button:hover:not(:disabled){background:var(--soft)}
+.arrows button:disabled{opacity:.3;cursor:default}
+.tabs{max-width:640px;margin:0 auto;padding:9px 20px 0;display:flex;gap:22px}
+.tabs button{padding:0 0 10px;font-size:14px;font-weight:500;color:var(--ink-3);
+  border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button:hover{color:var(--ink-2)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.prog{height:2px;background:var(--line);position:relative}
+.prog i{position:absolute;inset:0 auto 0 0;background:var(--accent);width:0;transition:width .4s}
+
+h2.big{font-family:var(--display);font-size:clamp(26px,6.2vw,34px);font-weight:700;
+  letter-spacing:-.03em;line-height:1.12;margin:0 0 12px;text-wrap:balance}
+h3{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-.02em;margin:0 0 10px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px}
+.lede{font-size:17px;line-height:1.55;color:var(--ink-2);max-width:54ch}
+.sec{padding:38px 0;border-top:1px solid var(--line)}
+.sec:first-child{border-top:0}
+.dim{color:var(--ink-2);font-size:15px}
+.tiny{font-size:12.5px;color:var(--ink-3);line-height:1.55}
+
+.hero{padding:34px 0 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.chip{font-size:12px;font-weight:500;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--ink-2)}
+.chip.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.note{border-radius:var(--r);padding:16px 18px;margin-top:22px;font-size:15px}
+.note.cp{background:var(--warn-soft)}
+.note .lab{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--warn);display:block;margin-bottom:7px}
+.note .q{font-weight:600;font-size:16px;line-height:1.4}
+.note .it{font-style:italic;margin-top:8px;line-height:1.45}
+
+.steps{margin-top:26px;border-top:1px solid var(--line)}
+.step{border-bottom:1px solid var(--line)}
+.sh{width:100%;display:flex;align-items:center;gap:13px;padding:17px 2px;text-align:left}
+.sh:hover .nm{color:var(--accent)}
+.tick{flex:none;width:19px;height:19px;border-radius:50%;border:1.5px solid var(--line-2);
+  display:grid;place-items:center;font-size:10px;color:transparent;transition:.16s}
+.step[data-done="1"] .tick{background:var(--accent);border-color:var(--accent);color:#fff}
+.sh .tx{flex:1;min-width:0}
+.sh .nm{display:block;font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+.sh .sb{display:block;font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.sh .cue{font-family:var(--display);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sh .car{color:var(--ink-3);font-size:11px;transition:transform .2s}
+.step[data-open="1"] .car{transform:rotate(180deg)}
+.sb-body{display:none;padding:0 2px 26px}
+.step[data-open="1"] .sb-body{display:block}
+.why{font-size:12.5px;color:var(--ink-3);line-height:1.55;margin-top:16px;
+  padding-left:12px;border-left:2px solid var(--line)}
+
+.topic{background:var(--accent-soft);border-radius:var(--r);padding:16px 18px;margin:16px 0}
+.topic .q{font-size:16.5px;font-weight:600;line-height:1.38;text-wrap:balance}
+.topic .h{font-size:13px;color:var(--ink-2);margin-top:10px;padding-top:10px;border-top:1px solid rgba(31,107,79,.16)}
+.clockbox{text-align:center;padding:22px 0 6px}
+.clock{font-family:var(--display);font-size:clamp(46px,13vw,58px);font-weight:700;
+  letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}
+.clock.rest{color:var(--ink-3)}
+.clock.hot{color:var(--warn)}
+.phase{font-size:13px;color:var(--ink-2);margin-top:8px;min-height:19px}
+.pips{display:flex;gap:5px;justify-content:center;margin-top:14px}
+.pip{width:26px;height:4px;border-radius:2px;background:var(--line-2)}
+.pip.on{background:var(--accent)} .pip.done{background:var(--accent);opacity:.4}
+.row{display:flex;gap:7px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.btn{border:1px solid var(--line-2);border-radius:9px;padding:9px 18px;font-size:14px;font-weight:500}
+.btn:hover{background:var(--soft)}
+.btn.go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.go:hover{background:var(--accent-2)}
+.btn.wide{display:block;width:100%;text-align:center;margin-top:12px}
+
+/* sprint */
+.sprint{background:var(--soft);border-radius:var(--r);padding:26px 20px;margin-top:16px;text-align:center}
+.sp-q{font-size:21px;font-weight:600;line-height:1.35;min-height:62px;display:flex;
+  align-items:center;justify-content:center;text-wrap:balance}
+.sp-meta{display:flex;justify-content:center;gap:24px;margin-top:14px;font-size:13px;color:var(--ink-2)}
+.sp-meta b{font-family:var(--display);font-size:19px;font-weight:700;display:block;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+.sp-res{font-size:15px;font-weight:600;color:var(--accent);margin-top:6px}
+
+.ia{border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:20px;background:var(--panel)}
+.ia h4{font-family:var(--display);font-size:15px;font-weight:700;margin:0 0 4px}
+.ia .st{font-size:13.5px;color:var(--ink-2);margin:0 0 14px}
+.ia ol{margin:0 0 14px;padding-left:19px;font-size:13.5px;color:var(--ink-2)}
+.ia ol li{margin-bottom:5px}
+.pbox{background:var(--soft);border-radius:9px;padding:13px 15px;font-size:12.5px;line-height:1.65;
+  font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;max-height:150px;
+  overflow:auto;color:var(--ink-2)}
+.grade{display:flex;gap:10px;align-items:flex-end;margin-top:14px;flex-wrap:wrap}
+.fld{flex:1;min-width:0}
+.fld.n{flex:0 0 92px}
+.fld label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.fld input,.fld select,.fld textarea{width:100%;border:1px solid var(--line-2);border-radius:8px;
+  padding:9px 11px;font-size:14.5px;background:var(--panel)}
+.fld textarea{resize:vertical;min-height:44px;line-height:1.45}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--ink-3)}
+
+.deck-top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-3);margin:16px 0 9px}
+.deck-top .ct{font-family:var(--display);font-variant-numeric:tabular-nums}
+.card{position:relative;perspective:1100px;min-height:150px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card-in{position:relative;width:100%;min-height:150px;transition:transform .4s cubic-bezier(.4,.05,.2,1);
+  transform-style:preserve-3d}
+.card[data-flip="1"] .card-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:var(--r);padding:20px 18px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.f-a{background:var(--soft)} .f-b{background:var(--accent-soft);transform:rotateY(180deg)}
+.f-lab{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.f-tx{font-size:18px;line-height:1.35;font-weight:500;letter-spacing:-.012em;text-wrap:balance}
+.f-b .f-tx{color:var(--accent);font-weight:600}
+.f-ck{font-family:var(--display);font-size:12.5px;color:var(--ink-2)}
+.f-nt{font-size:12px;color:var(--ink-2);line-height:1.45;border-top:1px solid rgba(31,107,79,.16);padding-top:7px}
+.f-tap{position:absolute;right:14px;bottom:12px;font-size:11px;color:var(--ink-3)}
+.dctl{display:flex;gap:7px;margin-top:11px}
+.dctl .btn{flex:1;padding:10px 6px} .dctl .btn.sm{flex:0 0 42px}
+
+.vs{display:grid;gap:8px;margin:16px 0}
+@media(min-width:520px){.vs{grid-template-columns:1fr 1fr}}
+.vs>div{border-radius:var(--r);padding:13px 15px}
+.vs .bad{background:var(--warn-soft)} .vs .good{background:var(--accent-soft)}
+.vs .l{display:block;font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.vs .bad .l{color:var(--warn)} .vs .good .l{color:var(--accent)}
+.vs .s{font-size:15px;line-height:1.35}
+.vs .bad .s{text-decoration:line-through;text-decoration-color:rgba(154,74,46,.5)}
+
+.qa{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.q1{background:var(--soft);border-radius:var(--r);padding:13px 15px;border:1px solid transparent}
+.q1[data-s="hit"]{background:var(--accent-soft);border-color:rgba(31,107,79,.25)}
+.q1[data-s="miss"]{background:var(--warn-soft);border-color:rgba(154,74,46,.25)}
+.q1 .qn{font-size:15px;margin-bottom:8px}
+.q1 input{width:100%;background:var(--panel);border:1px solid var(--line-2);border-radius:8px;padding:9px 11px;font-size:14.5px}
+.q1 .an{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);gap:8px;flex-wrap:wrap;align-items:center}
+.q1[data-r="1"] .an{display:flex}
+.q1 .an .t{font-size:14.5px;font-weight:600;color:var(--accent);flex:1;min-width:170px}
+.q1 .an .btn{padding:5px 11px;font-size:12.5px}
+
+.out{background:var(--soft);border-radius:var(--r);padding:16px 18px;margin-top:14px;white-space:pre-wrap;
+  word-break:break-word;font-family:var(--display);font-size:13.5px;line-height:1.85;font-variant-numeric:tabular-nums}
+.ready{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--accent);font-weight:600;margin-top:12px}
+
+.arcw{display:grid;grid-template-columns:82px 1fr;gap:16px;padding:16px 0;border-top:1px solid var(--line)}
+.arcw:first-child{border-top:0}
+.arcw .n{font-family:var(--display);font-size:12px;font-weight:700;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.06em;padding-top:3px}
+.arcw h4{font-family:var(--display);font-size:16px;font-weight:700;margin:0 0 4px}
+.arcw p{margin:0;font-size:14px;color:var(--ink-2);line-height:1.5}
+table.idx{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+table.idx th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;padding:0 8px 8px 0;border-bottom:1px solid var(--line)}
+table.idx td{padding:9px 8px 9px 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+table.idx td.d{font-family:var(--display);font-weight:700;color:var(--ink);width:24px;font-variant-numeric:tabular-nums}
+table.idx td.f{color:var(--ink)}
+table.idx tr.cp td{background:var(--warn-soft)}
+.tg{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  padding:2px 7px;border-radius:5px;background:var(--soft);color:var(--ink-2)}
+.tg.h{background:var(--accent-soft);color:var(--accent)}
+.mnum{display:flex;gap:26px;flex-wrap:wrap;margin:20px 0 4px}
+.mnum .v{font-family:var(--display);font-size:27px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.mnum .k{font-size:12.5px;color:var(--ink-3);margin-top:2px;max-width:20ch;line-height:1.4}
+figure{margin:22px 0 0}
+figcaption{font-size:12.5px;color:var(--ink-3);margin-top:12px;line-height:1.55}
+svg.chart{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:16px;height:3px;border-radius:2px}
+ul.clean{margin:14px 0 0;padding-left:0;list-style:none}
+ul.clean li{padding-left:18px;position:relative;margin-bottom:10px;font-size:14.5px;color:var(--ink-2)}
+ul.clean li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:1.5px;background:var(--line-2)}
+ul.clean li b{color:var(--ink)}
+
+.mrow{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.mrow .wl{font-size:10.5px;color:var(--ink-3);width:20px}
+.mrow .dd{display:flex;gap:5px;flex:1}
+.db{flex:1;aspect-ratio:1;max-width:44px;border-radius:7px;border:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  font-family:var(--display);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.db i{font-style:normal;font-size:8.5px;letter-spacing:.04em;text-transform:uppercase;font-family:var(--body)}
+.db:hover{border-color:var(--ink-3)}
+.db[data-done="1"]{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:700}
+.db[data-now="1"]{border-color:var(--accent);border-width:1.5px;color:var(--ink)}
+.db[data-void="1"]{opacity:.35;pointer-events:none}
+.err{background:var(--warn-soft);border-radius:var(--r);padding:20px 22px;margin:30px 0}
+.err h3{color:var(--warn);margin-bottom:6px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<script>
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║  EDITABLE BLOCK — the agent touches ONLY what sits between these marks.  ║
+   ║                                                                          ║
+   ║  Each session: copy the object from the plan and paste it right BEFORE   ║
+   ║  the line that reads ]; END OF EDITABLE BLOCK.                           ║
+   ║  Add a comma at the end of the previous object.                          ║
+   ║  Do not delete old sessions: the route, the review and the sprint need   ║
+   ║  them. Do not modify ANYTHING outside these marks.                       ║
+   ╚══════════════════════════════════════════════════════════════════════════╝ */
+const LECCIONES = [
+  {
+    "dia": 1,
+    "semana": 1,
+    "diaSemana": "Monday",
+    "tipo": "habla",
+    "foco": "Just produce. Today it only matters that all five rounds happen.",
+    "porque": "This is the exercise that carries the most weight. Repeating the same topic is the only thing that, when measured, improves your speaking on new topics.",
+    "checkpoint": 0,
+    "diccionario": [
+      {
+        "es": "El problema es que no me avisaron a tiempo.",
+        "en": "The thing is, they didn't tell me in time.",
+        "chunk": "the thing is",
+        "nota": ""
+      },
+      {
+        "es": "Depende de cuánta gente venga.",
+        "en": "It depends on how many people show up.",
+        "chunk": "it depends on",
+        "nota": "depends ON. Never 'depends of'."
+      },
+      {
+        "es": "Déjame pensarlo un segundo.",
+        "en": "Let me think for a second.",
+        "chunk": "let me think for a second",
+        "nota": ""
+      },
+      {
+        "es": "Buena pregunta, nunca lo había pensado.",
+        "en": "That's a good question — I'd never thought about it.",
+        "chunk": "that's a good question",
+        "nota": ""
+      },
+      {
+        "es": "Lo que quiero decir es que no vale la pena.",
+        "en": "What I'm trying to say is it's not worth it.",
+        "chunk": "what I'm trying to say is",
+        "nota": ""
+      }
+    ],
+    "trampa": {
+      "titulo": "Age takes BE, not HAVE",
+      "mal": "I have 30 years old.",
+      "bien": "I'm 30 years old.",
+      "explica": "In Spanish you *have* years. In English you *are* them. The same goes for hunger, thirst, cold, heat, fear and being right: 'I'm hungry', 'I'm cold', 'I'm right'.",
+      "ejemplos": [
+        {
+          "es": "Tengo 34 años.",
+          "en": "I'm 34 years old."
+        },
+        {
+          "es": "Tengo mucha hambre.",
+          "en": "I'm really hungry."
+        },
+        {
+          "es": "Tienes razón.",
+          "en": "You're right."
+        }
+      ]
+    },
+    "cierre": null,
+    "bloque": {
+      "tema": "Tell the story of a time you were completely wrong about someone.",
+      "pista": "Past perfect: 'I had assumed…', 'it turned out…'.",
+      "rondas": 5,
+      "minutos": 1.5
+    },
+    "sprint": null,
+    "ensayo": null,
+    "reto": [
+      {
+        "es": "El problema es que no me avisaron a tiempo.",
+        "en": "The thing is, they didn't tell me in time."
+      },
+      {
+        "es": "Depende de cuánta gente venga.",
+        "en": "It depends on how many people show up."
+      },
+      {
+        "es": "Déjame pensarlo un segundo.",
+        "en": "Let me think for a second."
+      },
+      {
+        "es": "Buena pregunta, nunca lo había pensado.",
+        "en": "That's a good question — I'd never thought about it."
+      },
+      {
+        "es": "Lo que quiero decir es que no vale la pena.",
+        "en": "What I'm trying to say is it's not worth it."
+      }
+    ],
+    "retoOrigen": "Reinforcing today's material",
+    "modo": "Narrativo"
+  }
+];  /* ══ END OF EDITABLE BLOCK — do not touch anything below this line ══ */
+</script>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="mark">Practice <span>Room</span></div>
+    <div class="sp"></div>
+    <div class="dayn" id="dayn"></div>
+    <div class="arrows">
+      <button id="bPrev" aria-label="Previous session">‹</button>
+      <button id="bNext" aria-label="Next session">›</button>
+    </div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-v="hoy" aria-selected="true">Today</button>
+    <button role="tab" data-v="metodo" aria-selected="false">Method</button>
+    <button role="tab" data-v="ruta" aria-selected="false">The route</button>
+  </div>
+  <div class="prog"><i id="progBar"></i></div>
+</header>
+
+<main class="shell">
+  <div id="app"></div>
+  <div id="fail" class="err hide">
+    <h3>This session didn't load</h3>
+    <p class="dim" style="margin:0">Something is wrong inside the editable block of the file. It is almost
+    always a missing comma between two sessions, or a quote left open.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+"use strict";
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var esc = function (s) { return String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); };
+
+var L = (typeof LECCIONES !== "undefined" && Array.isArray(LECCIONES)) ? LECCIONES.filter(Boolean) : [];
+var idx = Math.max(0, L.length - 1);
+var view = "hoy";
+var TOTAL = 12;
+var NOM = { habla:"Speaking", vocabulario:"Vocabulary", ensayo:"Writing" };
+
+var store = {
+  get: function (k, d) { try { var v = localStorage.getItem("sp_" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set: function (k, v) { try { localStorage.setItem("sp_" + k, JSON.stringify(v)); } catch (e) {} }
+};
+function blank() { return { rondas:0, dicc:[], trampa:false, reto:[], hueco:"",
+  iaN:"", iaFix:"", sprint:"", escrito:false, cierre:false }; }
+var S = blank();
+
+/* ══ PROMPTS FOR THE AI ══ */
+function pHabla(tema) {
+  return 'You are grading ONE English speaking exercise. I am a Spanish speaker training to stop\n' +
+'pausing in the middle of sentences. Listen to me and grade only what I say.\n\n' +
+'What I was asked to talk about:\n"' + tema + '"\n\n' +
+'Grade ONE thing: flow. Do I stall in the MIDDLE of a sentence looking for a word or a\n' +
+'structure? Pausing BETWEEN sentences is normal — native speakers do it all the time.\n' +
+'Pausing mid-clause is what I am training away.\n\n' +
+'Do NOT grade or mention: my accent, my pronunciation, filled pauses (um, uh),\n' +
+'repetitions, or self-corrections. Native speakers use about 6 filled pauses a minute.\n\n' +
+'Reply with exactly this and nothing else:\n\n' +
+'SCORE: n/10\n' +
+'  5 = I stall constantly mid-sentence. 8 = I mostly finish clauses intact.\n' +
+'  10 = I never stall mid-clause. Grade me against my own level, not a native speaker.\n\n' +
+'FIX: exactly two lines. Name the exact word or structure where I stalled. Never a\n' +
+'general category like "vocabulary" or "confidence".\n\n' +
+'REACHED FOR: up to 3 things I clearly tried to say and could not get out. Each as:\n' +
+'  the Spanish I was reaching for | the natural English | the fixed chunk (3-7 words)\n\n' +
+'Then stop. No encouragement, no grammar lessons, no offers to help further.';
+}
+function pEnsayo(tema, palabras) {
+  return 'You are grading ONE short English text of about ' + palabras + ' words, written by a Spanish\n' +
+'speaker with a dictionary closed and a timer running.\n\n' +
+'The prompt was:\n"' + tema + '"\n\n' +
+'Grade ONE thing: are my sentences built like English sentences, or like translated Spanish\n' +
+'ones? Word order, articles, verb patterns, prepositions, clause structure.\n\n' +
+'Reply with exactly this and nothing else:\n\n' +
+'SCORE: n/10\n' +
+'  5 = Spanish wearing English words. 8 = mostly English-shaped, some leaks.\n' +
+'  10 = reads as English throughout.\n\n' +
+'FIX: exactly two lines, each naming the exact phrase, not a category.\n\n' +
+'SPANISH SHOWING THROUGH: up to 3 phrases where my Spanish structure leaked into the\n' +
+'English, each with the natural English version beside it.\n\n' +
+'Then stop. No encouragement, no general grammar lessons.';
+}
+function pCierre(que) {
+  return 'You are grading TWO MINUTES of unprepared English speech from a Spanish speaker.\n\n' +
+'What I was asked to do:\n"' + que + '"\n\n' +
+'Grade ONE thing: do I stall in the middle of sentences? Pausing between sentences is fine.\n' +
+'Do NOT mention my accent, my pronunciation, or filled pauses (um, uh).\n\n' +
+'Reply with exactly this and nothing else:\n\n' +
+'SCORE: n/10\n' +
+'FIX: exactly two lines, naming the exact word or structure where I stalled.\n' +
+'REACHED FOR: up to 3 things I tried to say and could not, as:\n' +
+'  the Spanish | the natural English | the fixed chunk\n\n' +
+'Then stop. No encouragement.';
+}
+
+/* ══ PROGRESS ══ */
+function partes() {
+  var l = L[idx], f = { trampa: !!S.trampa,
+    dicc: (S.dicc || []).length >= (l.diccionario || []).length,
+    reto: (S.reto || []).filter(Boolean).length >= (l.reto || []).length,
+    rep:  !!(S.hueco && S.hueco.trim()) };
+  if (l.tipo === "habla")   f.bloque = S.rondas >= (l.bloque.rondas || 5);
+  if (l.sprint)             f.sprint = S.sprint !== "" && S.sprint !== null;
+  if (l.ensayo)             f.escr   = !!S.escrito;
+  if (l.cierre)             f.cierre = !!S.cierre;
+  return f;
+}
+function nParts() { return Object.keys(partes()).length; }
+function nDone() { var f = partes(); return Object.keys(f).filter(function (k) { return f[k]; }).length; }
+function sesionHecha(n) {
+  var s = store.get("d" + n, null); if (!s) return false;
+  var l = null; L.forEach(function (x) { if (x.dia === n) l = x; });
+  if (!l) return false;
+  var core = l.tipo === "habla" ? (s.rondas || 0) >= (l.bloque.rondas || 5)
+           : l.tipo === "ensayo" ? !!s.escrito : (s.sprint !== "" && s.sprint != null);
+  return core && !!(s.hueco && s.hueco.trim());
+}
+function paint() {
+  if (view !== "hoy" || !L.length) { $("#progBar").style.width = "0%"; return; }
+  $("#progBar").style.width = (nDone() / nParts() * 100) + "%";
+  $$(".step").forEach(function (el) {
+    el.setAttribute("data-done", partes()[el.getAttribute("data-k")] ? "1" : "0"); });
+}
+function save() { store.set("d" + L[idx].dia, S); paint(); report(); mes(); }
+
+/* ══ TIMERS ══ */
+var T = null, tk = null;
+function fmt(s) { return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+function bell(n) {
+  try { var C = window.AudioContext || window.webkitAudioContext; if (!C) return; var c = new C();
+    for (var i = 0; i < n; i++) { var o = c.createOscillator(), g = c.createGain(), t = c.currentTime + i * .23;
+      o.type = "sine"; o.frequency.value = 570;
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.28, t + .012);
+      g.gain.exponentialRampToValueAtTime(.0001, t + .19);
+      o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + .22); }
+    setTimeout(function () { if (c.close) c.close(); }, 1400 + n * 230);
+  } catch (e) {}
+}
+function secs() { return Math.round((L[idx].bloque.minutos || 2) * 60); }
+function rds() { return L[idx].bloque.rondas || 5; }
+function tPaint() {
+  var c = $("#clock"); if (!c) return; var R = rds();
+  if (!T) { c.textContent = fmt(secs()); c.classList.remove("rest"); $("#phase").textContent = "Round 1 of " + R; }
+  else if (T.done) { c.textContent = "✓"; c.classList.remove("rest"); $("#phase").textContent = "All " + R + " rounds done"; }
+  else { c.textContent = fmt(T.left); c.classList.toggle("rest", T.rest);
+    $("#phase").textContent = T.rest ? "Breather · next round in " + T.left + "s" : "Round " + T.r + " of " + R; }
+  $$(".pip").forEach(function (p, i) {
+    p.className = "pip" + (T ? (T.r > i + 1 || T.done ? " done" : (T.r === i + 1 ? " on" : ""))
+                             : (S.rondas > i ? " done" : "")); });
+  var b = $("#tGo"); if (b) b.textContent = !T || T.done ? "Start" : (T.p ? "Resume" : "Pause");
+}
+function tStep() {
+  if (!T || T.p || T.done) return;
+  T.left--;
+  if (T.left <= 0) {
+    if (T.rest) { T.rest = false; T.r++; T.left = secs(); bell(1); }
+    else { S.rondas = Math.max(S.rondas, T.r); save();
+      if (T.r >= rds()) { T.done = true; T.left = 0; bell(3); clearInterval(tk); tk = null; }
+      else { T.rest = true; T.left = 30; bell(2); } }
+  }
+  tPaint();
+}
+function tReset() { if (tk) clearInterval(tk); tk = null; T = null; tPaint(); }
+
+/* ══ SPRINT ══ */
+var SP = null, sk = null;
+function spPaint() {
+  var q = $("#spQ"); if (!q) return;
+  var its = L[idx].sprint.items;
+  if (!SP) {
+    q.textContent = S.sprint !== "" && S.sprint != null
+      ? "Your best so far: " + S.sprint + " out of " + its.length
+      : "Hit Start. Say each sentence in English out loud, then move on.";
+    $("#spT").textContent = L[idx].sprint.segundos; $("#spN").textContent = "0";
+    $("#spGo").textContent = "Start"; $("#spNext").disabled = true;
+    $("#spRes").textContent = ""; return;
+  }
+  if (SP.done) {
+    q.textContent = "You got through " + SP.n + " of " + its.length + ".";
+    $("#spT").textContent = "0"; $("#spN").textContent = SP.n;
+    $("#spGo").textContent = "Go again"; $("#spNext").disabled = true;
+    $("#spRes").textContent = SP.n > (S.sprint || 0) ? "New best" : "";
+    return;
+  }
+  q.textContent = its[Math.min(SP.i, its.length - 1)].es;
+  $("#spT").textContent = SP.left; $("#spN").textContent = SP.n;
+  $("#spGo").textContent = "Stop"; $("#spNext").disabled = false;
+}
+function spStop() {
+  if (sk) clearInterval(sk); sk = null;
+  if (SP) { SP.done = true;
+    if (SP.n > (S.sprint === "" || S.sprint == null ? -1 : S.sprint)) { S.sprint = SP.n; save(); } }
+  spPaint();
+}
+function spTick() {
+  if (!SP || SP.done) return;
+  SP.left--;
+  if (SP.left <= 0) { bell(2); spStop(); return; }
+  spPaint();
+}
+
+/* ══ CARDS ══ */
+var dk = { i:0, f:false };
+function dkItems() { return L[idx].diccionario || []; }
+function dkPaint() {
+  var it = dkItems()[dk.i]; if (!it || !$("#card")) return;
+  $("#card").setAttribute("data-flip", dk.f ? "1" : "0");
+  $("#fA").textContent = it.es; $("#fB").textContent = it.en;
+  $("#fCk").textContent = it.chunk || "";
+  var n = $("#fNt"); n.textContent = it.nota || ""; n.style.display = it.nota ? "" : "none";
+  $("#dCt").textContent = (dk.i + 1) + " / " + dkItems().length;
+  $("#dSeen").textContent = (S.dicc || []).length + " seen";
+}
+
+/* ══ TODAY ══ */
+function vHoy() {
+  var l = L[idx], h = "";
+  var chips = ['<span class="chip on">' + NOM[l.tipo] + "</span>"];
+  if (l.tipo === "habla") {
+    var m = l.bloque.minutos; chips.push('<span class="chip">' + l.bloque.rondas + " × " +
+      (m % 1 === 0 ? m + " min" : Math.round(m * 60) + "s") + "</span>"); }
+  if (l.sprint) chips.push('<span class="chip">' + l.sprint.segundos + "s sprint</span>");
+  if (l.ensayo) chips.push('<span class="chip">' + l.ensayo.palabras + " words</span>");
+  chips.push('<span class="chip">' + (l.diccionario || []).length + " expressions</span>");
+
+  h += '<div class="hero"><div class="eyebrow">Session ' + l.dia + " · " + esc(l.diaSemana) + "</div>" +
+    '<h2 class="big">' + esc(l.foco) + "</h2>" +
+    '<p class="lede">' + esc(l.porque) + "</p>" +
+    '<div class="chips">' + chips.join("") + "</div></div>";
+
+  if (l.checkpoint === 0 || l.checkpoint === 1) {
+    h += '<div class="note cp"><span class="lab">Checkpoint ' + l.checkpoint + " · before anything else</span>" +
+      '<div class="q">Record two minutes on this prompt. Do not prepare anything.</div>' +
+      '<div class="it">“Tell me about your last week. Go through it in order, and include one thing ' +
+      'that went wrong and what you did about it.”</div>' +
+      '<div class="tiny" style="margin-top:10px">' + (l.checkpoint === 0
+        ? "Save it as <b>checkpoint-0</b>. Don't listen to it yet."
+        : "Save it as <b>checkpoint-1</b> and play it back to back with the first one. That comparison is the result of the month.") +
+      "</div></div>";
+  }
+
+  h += '<div class="steps">';
+
+  if (l.tipo === "habla") {
+    var M = l.bloque.minutos, R = l.bloque.rondas;
+    var mn = M % 1 === 0 ? M + " min" : Math.round(M * 60) + "s";
+    h += step("bloque", "The speaking block", R + " rounds of " + mn + ", out loud", Math.round(R * M) + " min",
+      '<p class="dim">The same topic ' + R + " times. The same length every round. No notes, nothing prepared. " +
+      "If you run out of things to say, don't stop: say the last point again in different words.</p>" +
+      '<div class="topic"><div class="q">' + esc(l.bloque.tema) + "</div>" +
+      (l.bloque.pista ? '<div class="h">You will need: ' + esc(l.bloque.pista) + "</div>" : "") + "</div>" +
+      '<div class="clockbox"><div class="clock" id="clock">' + fmt(Math.round(M * 60)) + "</div>" +
+      '<div class="phase" id="phase"></div>' +
+      '<div class="pips">' + Array(R + 1).join('<div class="pip"></div>') + "</div>" +
+      '<div class="row"><button class="btn go" id="tGo">Start</button>' +
+      '<button class="btn" id="tSkip">Skip round</button>' +
+      '<button class="btn" id="tReset">Reset</button></div></div>' +
+      iaBox("Have an AI grade your fifth round",
+        "Leave your AI listening on voice while you speak the last round.",
+        ["Open ChatGPT, Claude or whichever you use, in voice mode.",
+         "Paste it the prompt below.",
+         "Speak your fifth round with it listening.",
+         "Write the score and the two fixes here."],
+        pHabla(l.bloque.tema)) +
+      '<p class="why">Repeating the same topic is the only thing that, when measured, improves speaking on ' +
+      "new topics. And you have to reach round five: mid-sentence pauses keep improving through the fourth.</p>");
+  }
+
+  if (l.sprint) {
+    h += step("sprint", "Retrieval sprint", l.sprint.items.length + " sentences in " + l.sprint.segundos + " seconds", "2 min",
+      '<p class="dim">A sentence comes up in Spanish. You say it in English <b>out loud</b> and move on. ' +
+      "If it doesn't come in two seconds, move on anyway. At the end you see how far you got.</p>" +
+      '<div class="sprint"><div class="sp-q" id="spQ"></div>' +
+      '<div class="sp-meta"><div><b id="spT">' + l.sprint.segundos + "</b>seconds</div>" +
+      '<div><b id="spN">0</b>sentences</div></div>' +
+      '<div class="sp-res" id="spRes"></div>' +
+      '<div class="row"><button class="btn go" id="spGo">Start</button>' +
+      '<button class="btn" id="spNext" disabled>Next</button></div></div>' +
+      '<p class="why">This does not measure whether you know the expression. It measures how long you take to ' +
+      "find it. That speed explains ten times more of your pausing than knowing the word does. " +
+      "The number should climb over the month.</p>");
+  }
+
+  h += step("dicc", "New expressions", (l.diccionario || []).length + " multi-word ones", "6 min",
+    '<p class="dim">Read the Spanish and <b>say the English out loud</b> before you flip the card. ' +
+    "Out loud for real. If you do it in your head you're practising comprehension again.</p>" +
+    '<div class="deck-top"><span id="dSeen">0 seen</span><span class="ct" id="dCt"></span></div>' +
+    '<div class="card" id="card" data-flip="0" tabindex="0" role="button" aria-label="Flip card">' +
+    '<div class="card-in"><div class="face f-a"><div class="f-lab">Say it in English</div>' +
+    '<div class="f-tx" id="fA"></div><span class="f-tap">tap to flip</span></div>' +
+    '<div class="face f-b"><div class="f-ck" id="fCk"></div><div class="f-tx" id="fB"></div>' +
+    '<div class="f-nt" id="fNt"></div></div></div></div>' +
+    '<div class="dctl"><button class="btn sm" id="dPrev">‹</button>' +
+    '<button class="btn" id="dMiss">Missed it</button><button class="btn" id="dHit">Got it</button>' +
+    '<button class="btn sm" id="dNext">›</button></div>' +
+    '<p class="why">These are fixed multi-word expressions, not single words. You cannot pause inside an ' +
+    "expression you already have automated, and that is where the gain is.</p>");
+
+  if (l.ensayo) {
+    h += step("escr", "The essay", l.ensayo.palabras + " words in " + l.ensayo.minutos + " minutes", l.ensayo.minutos + " min",
+      '<p class="dim">Write with the dictionary closed and the clock running. If you don\'t know a word, ' +
+      "talk around it the way you would out loud. Looking it up turns this into a different exercise.</p>" +
+      '<div class="topic"><div class="q">' + esc(l.ensayo.consigna) + "</div>" +
+      '<div class="h">About ' + l.ensayo.palabras + " words. Write wherever you like — nothing is stored here.</div></div>" +
+      iaBox("Have the AI grade what you wrote", "Give it your text and this prompt.",
+        ["Write your " + l.ensayo.palabras + " words.",
+         "Paste them into your AI with the prompt below.",
+         "Write the score and the two fixes here."],
+        pEnsayo(l.ensayo.consigna, l.ensayo.palabras)) +
+      '<button class="btn go wide" id="esDone">Done, I wrote it</button>' +
+      '<p class="why">Writing does not teach you to speak — they are different skills. It does something else. ' +
+      "With time to think you build sentences that don't come out when you talk, and that difference is your gap, measured.</p>");
+  }
+
+  var t = l.trampa || {};
+  h += step("trampa", "Today's trap", esc(t.titulo), "4 min",
+    '<div class="vs"><div class="bad"><span class="l">Not this</span><span class="s">' + esc(t.mal) + "</span></div>" +
+    '<div class="good"><span class="l">This</span><span class="s">' + esc(t.bien) + "</span></div></div>" +
+    '<p class="dim">' + esc(t.explica) + "</p>" +
+    '<div class="qa" id="trEx">' + (t.ejemplos || []).map(function (e) {
+      return '<div class="q1"><div class="qn">' + esc(e.es) + "</div>" +
+        '<div class="an" style="border-top:0;padding-top:0;margin-top:6px"><span class="t">' + esc(e.en) + "</span></div></div>";
+    }).join("") + "</div>" +
+    '<button class="btn wide" id="trShow">Say all three out loud, then reveal</button>' +
+    '<button class="btn go wide hide" id="trDone">Done, I said them</button>' +
+    '<p class="why">Reading the rule is not enough. A rule you only know does not show up when you speak: it has ' +
+    "to have gone through your mouth. That is why there is one a session, and it comes with sentences.</p>");
+
+  h += step("reto", "Quick round", esc(l.retoOrigen), "3 min",
+    '<p class="dim">Write them in English as fast as you can, without looking anything up. Then reveal and mark ' +
+    "yourself. These same ones go to the group.</p>" +
+    '<div class="qa" id="retoBox">' + (l.reto || []).map(function (r, i) {
+      return '<div class="q1" data-i="' + i + '" data-r="0"><div class="qn">' + (i + 1) + ". " + esc(r.es) + "</div>" +
+        '<input type="text" placeholder="Your version…" autocomplete="off" spellcheck="false">' +
+        '<div class="an"><span class="t">' + esc(r.en) + "</span>" +
+        '<button class="btn" data-g="miss">Missed</button><button class="btn" data-g="hit">Had it</button></div></div>';
+    }).join("") + "</div>" +
+    '<button class="btn wide" id="retoShow">Reveal the answers</button>' +
+    '<p class="why">This does not train pronunciation. It trains finding the word and building the sentence, which ' +
+    "is where your brake is. It goes alongside speaking, not instead of it.</p>");
+
+  if (l.cierre) {
+    h += step("cierre", "Spoken close", l.cierre.min + " minutes, unprepared", l.cierre.min + " min",
+      '<p class="dim">' + esc(l.cierre.consigna) + "</p>" +
+      iaBox("Have the AI grade this too", "Same method: leave it listening.",
+        ["Open your AI in voice mode and paste it the prompt.", "Talk for two minutes.", "Write the score here."],
+        pCierre(l.cierre.consigna)) +
+      '<button class="btn go wide" id="ciDone">Done, I spoke</button>' +
+      '<p class="why">Every session ends by speaking, whatever type it is. That is what stops a week of vocabulary ' +
+      "and writing from going by without you opening your mouth.</p>");
+  }
+
+  h += step("rep", "Session wrap-up", "Copy it and paste it in the group", "1 min",
+    '<p class="dim">The only thing you type is the last line: what you wanted to say and couldn\'t.</p>' +
+    '<div class="fld"><label for="gapIn">Got stuck on</label>' +
+    '<textarea id="gapIn" placeholder="I wanted to say «de todas formas ya estaba hecho» and froze…"></textarea></div>' +
+    '<div class="out" id="out"></div><div class="ready hide" id="ready">✓ Session complete</div>' +
+    '<button class="btn go wide" id="copy">Copy for WhatsApp</button>' +
+    '<p class="why">By the end of the month you will have twelve sentences you wanted to say and couldn\'t, in your ' +
+    "own words. That is where next month's material comes from.</p>");
+
+  h += "</div>";
+  h += '<div class="sec" style="padding-bottom:0"><div class="eyebrow">The month</div><div id="mes"></div>' +
+    '<p class="tiny" id="mesN" style="margin-top:14px"></p></div>';
+  return h;
+}
+
+function iaBox(title, sub, pasos, prompt) {
+  var k = "x" + (iaBox.n = (iaBox.n || 0) + 1);
+  return '<div class="ia"><h4>' + title + '</h4><p class="st">' + sub + "</p>" +
+    "<ol>" + pasos.map(function (p) { return "<li>" + p + "</li>"; }).join("") + "</ol>" +
+    '<div class="pbox" id="pb_' + k + '">' + esc(prompt) + "</div>" +
+    '<button class="btn wide" data-cp="pb_' + k + '">Copy the prompt</button>' +
+    '<div class="grade"><div class="fld n"><label for="iaN">Score</label>' +
+    '<select id="iaN"><option value="">—</option>' +
+    [1,2,3,4,5,6,7,8,9,10].map(function (n) { return '<option value="' + n + '">' + n + "/10</option>"; }).join("") +
+    '</select></div><div class="fld"><label for="iaF">What to fix, per the AI</label>' +
+    '<input type="text" id="iaF" placeholder="pausing before every new clause; \'used to\'"></div></div></div>';
+}
+
+function step(k, nm, sb, cue, body) {
+  return '<section class="step" data-k="' + k + '" data-open="0" data-done="0">' +
+    '<button class="sh" type="button"><span class="tick">✓</span>' +
+    '<span class="tx"><span class="nm">' + nm + '</span><span class="sb">' + sb + "</span></span>" +
+    '<span class="cue">' + cue + '</span><span class="car">▾</span></button>' +
+    '<div class="sb-body">' + body + "</div></section>";
+}
+
+/* ══ METHOD ══ */
+function vMetodo() {
+  return '<div class="sec"><div class="eyebrow">The method</div>' +
+  '<h2 class="big">You understand English. What you lack is producing it fast.</h2>' +
+  '<p class="lede">Speaking has three steps: you decide what to say, you build the sentence, and you say it. ' +
+  'In Spanish the last two are automatic. In English, building the sentence still costs you attention. ' +
+  'That is why you freeze in the middle of a sentence, not at the start of one.</p>' +
+  '<div class="mnum">' +
+  '<div><div class="v">10.7%</div><div class="k">of your mid-sentence pauses come down to how <b>fast</b> you find a word</div></div>' +
+  '<div><div class="v">0.8%</div><div class="k">to <b>knowing</b> it. Vocabulary size does not predict fluency</div></div>' +
+  '<div><div class="v">≈ 0</div><div class="k">is the measured effect of listening and reading on your speaking</div></div></div></div>' +
+
+  '<div class="sec"><h3>This is not a pronunciation course</h3>' +
+  '<p class="dim">Your accent is not the target. Neither is getting rid of your "um"s: native speakers produce ' +
+  'about six a minute. What we train is not braking in the middle of a sentence.</p>' +
+  '<p class="dim">And you don\'t train it by speaking alone. The programme rotates three activities:</p>' +
+  '<ul class="clean">' +
+  '<li><b>Speaking.</b> The exercise that carries the most weight. You say the same topic five times in a row.</li>' +
+  '<li><b>Vocabulary.</b> New expressions, and a timed sprint to retrieve them. Knowing an expression is worth nothing if it takes you two seconds to find it.</li>' +
+  '<li><b>Writing.</b> On paper you have time to build the sentence properly. The distance between that and what comes out when you speak is your gap, and seeing it is useful.</li>' +
+  "</ul>" +
+  '<p class="dim" style="margin-top:16px">Every session ends with two minutes of speaking, whatever type it is.</p></div>' +
+
+  '<div class="sec"><h3>Every other day, not every day</h3>' +
+  '<p class="dim">Three sessions a week: Monday, Wednesday, Friday. Twelve in the month.</p>' +
+  '<p class="dim">This is not a compromise. The dose that worked in the studies is small: twelve narrations in ' +
+  'total were enough to improve speaking on new topics, and the effect held for four weeks. Here you will do ' +
+  'twenty. The programmes that failed in the literature are the high-volume ones: thirty-two hours of ' +
+  'pronunciation training, sixteen weeks of shadowing.</p>' +
+  '<p class="dim">What kills a programme like this is not doing too little. It is stopping showing up.</p></div>' +
+
+  '<div class="sec"><h3>Where your pauses fall, not how many</h3>' +
+  '<p class="dim">Compare B2 speakers, C1 speakers and natives on the same task. Pauses at sentence boundaries ' +
+  'barely move: natives also stop to think about what comes next. Pauses <b>inside</b> the sentence drop to a ' +
+  'third. That is what develops, and that is what we measure.</p>' +
+  '<figure>' + chart() + '<figcaption>Silent pauses per 100 words. Speaking rate, meanwhile, tops out at B2 and ' +
+  'stops climbing. What keeps changing above that level is <b>where</b> you pause.</figcaption></figure></div>' +
+
+  '<div class="sec"><h3>Why repeat the same topic</h3>' +
+  '<p class="dim">Of all the techniques people push, only one has clean evidence behind it: saying <b>the same ' +
+  'thing</b> several times in a row.</p>' +
+  '<p class="dim">The study that established it had two groups. One repeated the same topic. The other did the ' +
+  'same timings on different topics. The second group gained nothing. And it is not that you memorise the text: ' +
+  'what gets automated is building the sentence.</p>' +
+  '<ul class="clean">' +
+  '<li><b>Five rounds, not three.</b> Mid-sentence pauses keep improving through the fourth.</li>' +
+  '<li><b>Same length every round.</b> The popular version shortens the clock. Head to head, constant time does as well or better.</li>' +
+  '<li><b>All five the same day.</b> Spreading them across the week does not work the same way.</li>' +
+  "</ul></div>" +
+
+  '<div class="sec"><h3>Who grades you</h3>' +
+  '<p class="dim">Your own AI, not the group bot. Every session carries a prompt: you leave it listening and it ' +
+  'gives you a score out of ten plus two concrete things to fix.</p>' +
+  '<p class="dim">The prompts grade <b>one thing only</b>: whether you stall mid-sentence. They forbid any comment ' +
+  'on your accent or your filled pauses, and they ask the AI to compare you against yourself, not against a native.</p>' +
+  '<p class="dim">There is a reason the bot doesn\'t do the correcting. Pointing at the error and making you try ' +
+  'again works twice as well as handing you the right answer. A basic model does the second one.</p></div>' +
+
+  '<div class="sec"><h3>What we are not going to do</h3>' +
+  '<ul class="clean">' +
+  '<li><b>Shadowing.</b> Twenty-two sessions across sixteen weeks: no effect. 83% of the participants believed it was working.</li>' +
+  '<li><b>Reading aloud.</b> Eleven weeks with no rise in speaking rate.</li>' +
+  '<li><b>Accent training.</b> Thirty-two hours with no effect on spontaneous speech.</li>' +
+  '<li><b>More podcasts as homework.</b> They keep your base. They do not train your production.</li>' +
+  "</ul></div>" +
+
+  '<div class="sec"><h3>What to expect</h3>' +
+  '<table class="idx"><tbody>' +
+  '<tr><td class="d" style="width:86px">2–3 weeks</td><td>First measurable change in pausing. It starts feeling easier to get going.</td></tr>' +
+  '<tr><td class="d" style="width:86px">1–2 months</td><td>Mid-sentence pauses drop on topics you have never spoken about.</td></tr>' +
+  '<tr><td class="d" style="width:86px">5+ months</td><td>The real change. This month is the first step.</td></tr>' +
+  "</tbody></table>" +
+  '<p class="tiny" style="margin-top:16px">Two warnings so you don\'t get discouraged for the wrong reason. Your ' +
+  '<b>speed</b> is not going to rise much: this training improves pausing and does not move speed, and that is ' +
+  'expected. And your <b>grammar</b> improves slowly, through correction, not on its own.</p></div>';
+}
+
+function chart() {
+  return '<svg class="chart" viewBox="0 -16 600 266" role="img" aria-label="Pauses inside the sentence fall from 6.42 at B2 to 2.06 for natives; boundary pauses stay flat.">' +
+  '<g stroke="#e7e6e0" stroke-width="1"><line x1="30" y1="210" x2="500" y2="210"/>' +
+  '<line x1="30" y1="146.7" x2="500" y2="146.7"/><line x1="30" y1="83.3" x2="500" y2="83.3"/>' +
+  '<line x1="30" y1="20" x2="500" y2="20"/></g>' +
+  '<g fill="#8c8f8c" font-size="11" text-anchor="end" font-family="Figtree,sans-serif">' +
+  '<text x="22" y="214">0</text><text x="22" y="150.7">2</text><text x="22" y="87.3">4</text><text x="22" y="24">6</text></g>' +
+  '<g fill="#5b5e5d" font-size="12.5" text-anchor="middle" font-family="Figtree,sans-serif">' +
+  '<text x="30" y="234">B2</text><text x="265" y="234">C1</text><text x="500" y="234">Native</text></g>' +
+  '<polyline points="30,26.4 265,21.3 500,63.1" fill="none" stroke="#c2c1ba" stroke-width="2"/>' +
+  '<polyline points="30,6.6 265,90.2 500,144.7" fill="none" stroke="#1f6b4f" stroke-width="2.5"/>' +
+  '<g stroke="#fbfbf9" stroke-width="2">' +
+  '<circle cx="30" cy="26.4" r="4" fill="#c2c1ba"/><circle cx="265" cy="21.3" r="4" fill="#c2c1ba"/>' +
+  '<circle cx="500" cy="63.1" r="4" fill="#c2c1ba"/><circle cx="30" cy="6.6" r="4.5" fill="#1f6b4f"/>' +
+  '<circle cx="265" cy="90.2" r="4.5" fill="#1f6b4f"/><circle cx="500" cy="144.7" r="4.5" fill="#1f6b4f"/></g>' +
+  '<g font-size="12.5" font-family="Figtree,sans-serif"><text x="514" y="67" fill="#8c8f8c">4.64</text>' +
+  '<text x="514" y="149" fill="#1f6b4f" font-weight="600">2.06</text></g>' +
+  '<g font-size="11.5" fill="#8c8f8c" text-anchor="middle" font-family="Figtree,sans-serif">' +
+  '<text x="30" y="-2">6.42</text><text x="265" y="107">3.78</text><text x="265" y="12">5.96</text></g></svg>' +
+  '<div class="legend"><span><i class="sw" style="background:#1f6b4f"></i> Inside the sentence</span>' +
+  '<span><i class="sw" style="background:#c2c1ba"></i> At sentence boundaries</span></div>';
+}
+
+/* ══ ROUTE ══ */
+function vRuta() {
+  var h = '<div class="sec"><div class="eyebrow">The route</div>' +
+  '<h2 class="big">Twelve sessions with an order, not twelve loose days.</h2>' +
+  '<p class="lede">Monday, Wednesday and Friday. Each weekday has its own fixed activity, so there is nothing to ' +
+  'decide. And the demand climbs week by week.</p>' +
+  '<div style="margin-top:22px">' +
+  '<div class="arcw"><div class="n">Monday</div><div><h4>Speaking</h4>' +
+  '<p>The block: the same topic five times over. It is the exercise that carries the most weight, and it sits at the start of the week, when there is more energy.</p></div></div>' +
+  '<div class="arcw"><div class="n">Wednesday</div><div><h4>Vocabulary</h4>' +
+  '<p>Ten new expressions and a timed sprint over the ones you have already seen. The sprint measures retrieval speed, which is what actually explains your pausing.</p></div></div>' +
+  '<div class="arcw"><div class="n">Friday</div><div><h4>Writing</h4>' +
+  '<p>You write against the clock with the dictionary closed. Then you speak for two minutes on the same topic. Seeing the difference is the exercise.</p></div></div>' +
+  "</div>" +
+  '<p class="tiny" style="margin-top:18px">Sessions 1 and 12 carry a <b>checkpoint</b>: the same two-minute ' +
+  'recording, unprepared, at the start and at the end. It is the only thing that will tell you whether the month ' +
+  'was worth it.</p></div>';
+
+  h += '<div class="sec"><h3>How the demand climbs</h3>' +
+  '<table class="idx"><thead><tr><th>Week</th><th>Speaking</th><th>Writing</th></tr></thead><tbody>' +
+  '<tr><td class="f">1</td><td>Narrative · 90s</td><td>200 words</td></tr>' +
+  '<tr><td class="f">2</td><td>Descriptive · 2 min</td><td>250 words</td></tr>' +
+  '<tr><td class="f">3</td><td>Explanatory · 2 min</td><td>275 words</td></tr>' +
+  '<tr><td class="f">4</td><td>Argumentative · 2 min</td><td>300 words</td></tr>' +
+  "</tbody></table>" +
+  '<p class="dim" style="margin-top:14px">Narrating is the cheapest: the order of events holds you up when you ' +
+  'stall. Describing takes that support away. Explaining demands precision. Arguing demands taking a position and ' +
+  'conceding a point at the same time, which is the hardest thing to formulate. That is why it comes last.</p></div>';
+
+  h += '<div class="sec"><h3>The twelve sessions</h3>' +
+    '<table class="idx"><thead><tr><th></th><th>Activity</th><th>Focus</th></tr></thead><tbody>';
+  L.forEach(function (l) {
+    h += '<tr class="' + ((l.checkpoint === 0 || l.checkpoint === 1) ? "cp" : "") + '">' +
+      '<td class="d">' + l.dia + "</td>" +
+      '<td><span class="tg' + (l.tipo === "habla" ? " h" : "") + '">' + NOM[l.tipo] + "</span>" +
+      (l.checkpoint !== null && l.checkpoint !== undefined ? ' <b style="color:var(--warn)">checkpoint</b>' : "") + "</td>" +
+      '<td class="f">' + esc(l.foco) + "</td></tr>";
+  });
+  h += "</tbody></table>";
+  if (L.length < TOTAL) h += '<p class="tiny" style="margin-top:14px">' + (TOTAL - L.length) +
+    " sessions still to be published. They show up here as the agent loads them.</p>";
+  h += "</div>";
+
+  h += '<div class="sec"><h3>Why this order</h3><ul class="clean">' +
+  '<li><b>Vocabulary goes by usefulness, not by topic.</b> First the expressions that buy you time — the ones that let you keep talking when you stall. The formal linking ones come last, because their evidence is far weaker.</li>' +
+  '<li><b>Every expression comes back three times.</b> The quick round is made of sentences from earlier sessions. The intervals are short on purpose: oral skill prefers short intervals, the opposite of study vocabulary.</li>' +
+  '<li><b>One grammar trap per session.</b> Chosen because Spanish pushes you into the error, not to follow a syllabus. If this part grows, it eats the time for speaking.</li>' +
+  '<li><b>Next month comes from your own gaps.</b> That is why the "got stuck on" line is required even if you did nothing else that day.</li>' +
+  "</ul></div>";
+  return h;
+}
+
+/* ══ REPORT ══ */
+function report() {
+  var o = $("#out"); if (!o) return;
+  var l = L[idx];
+  var hits = (S.reto || []).filter(function (x) { return x === "hit"; }).length;
+  var ans = (S.reto || []).filter(Boolean).length;
+  var t = "Session " + l.dia + " · Week " + l.semana + " · " + NOM[l.tipo] + "\n\n";
+  if (l.tipo === "habla") t += "Block: " + S.rondas + "/" + (l.bloque.rondas || 5) + " rounds\n";
+  if (l.sprint) t += "Sprint: " + (S.sprint !== "" && S.sprint != null
+    ? S.sprint + " of " + l.sprint.items.length + " in " + l.sprint.segundos + "s" : "no") + "\n";
+  if (l.ensayo) t += "Essay: " + (S.escrito ? l.ensayo.palabras + " words" : "no") + "\n";
+  if (l.cierre) t += "Spoken close: " + (S.cierre ? "yes" : "no") + "\n";
+  if (S.iaN) t += "AI score: " + S.iaN + "/10\n";
+  if (S.iaFix) t += "To fix: " + S.iaFix + "\n";
+  t += "Expressions: " + (S.dicc || []).length + "/" + (l.diccionario || []).length + "\n";
+  t += "Trap: " + (S.trampa ? "yes" : "no") + "\n";
+  t += "Quick round: " + (ans ? hits + "/" + (l.reto || []).length : "no") + "\n";
+  t += "Got stuck on: " + ((S.hueco || "").trim() || "—");
+  o.textContent = t;
+  var r = $("#ready"); if (r) r.classList.toggle("hide", nDone() < nParts());
+}
+
+/* ══ MONTH ══ */
+function mes() {
+  var g = $("#mes"); if (!g) return;
+  var by = {}; L.forEach(function (l, i) { by[l.dia] = i; });
+  var ab = { habla:"Speak", vocabulario:"Vocab", ensayo:"Write" };
+  var h = "";
+  for (var w = 1; w <= 4; w++) {
+    h += '<div class="mrow"><span class="wl">W' + w + '</span><div class="dd">';
+    for (var d = (w - 1) * 3 + 1; d <= w * 3; d++) {
+      var ok = by[d] !== undefined;
+      var tp = ok ? L[by[d]].tipo : ["habla","vocabulario","ensayo"][(d - 1) % 3];
+      h += '<button class="db" data-go="' + (ok ? by[d] : -1) + '"' + (ok ? "" : ' data-void="1"') +
+        (ok && sesionHecha(d) ? ' data-done="1"' : "") + (ok && by[d] === idx ? ' data-now="1"' : "") +
+        ">" + d + "<i>" + ab[tp] + "</i></button>";
+    }
+    h += "</div></div>";
+  }
+  g.innerHTML = h;
+  $$(".db", g).forEach(function (b) {
+    b.addEventListener("click", function () {
+      var i = +b.getAttribute("data-go");
+      if (i >= 0) { idx = i; render(); window.scrollTo({ top: 0, behavior: "smooth" }); } }); });
+  var n = 0; for (var k = 1; k <= TOTAL; k++) if (sesionHecha(k)) n++;
+  $("#mesN").textContent = n + " of " + TOTAL + " sessions complete. A session counts once you have done the " +
+    "main activity and reported your gap.";
+}
+
+/* ══ RENDER ══ */
+function render() {
+  $$('.tabs button').forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-v") === view ? "true" : "false"); });
+  var has = L.length > 0;
+  $("#bPrev").disabled = !has || idx <= 0 || view !== "hoy";
+  $("#bNext").disabled = !has || idx >= L.length - 1 || view !== "hoy";
+  $("#dayn").textContent = has && view === "hoy" ? "Session " + L[idx].dia + " of " + TOTAL : "";
+  if (!has) { $("#app").innerHTML = ""; $("#fail").classList.remove("hide"); return; }
+  try {
+    if (view === "metodo") { $("#app").innerHTML = vMetodo(); $("#fail").classList.add("hide"); paint(); return; }
+    if (view === "ruta")   { $("#app").innerHTML = vRuta();   $("#fail").classList.add("hide"); paint(); return; }
+    S = Object.assign(blank(), store.get("d" + L[idx].dia, {}));
+    iaBox.n = 0;
+    $("#app").innerHTML = vHoy();
+    $("#fail").classList.add("hide");
+    wire(); tReset(); SP = null; if (sk) { clearInterval(sk); sk = null; }
+    dk = { i:0, f:false }; dkPaint(); spPaint(); paint(); report(); mes();
+  } catch (e) { $("#app").innerHTML = ""; $("#fail").classList.remove("hide"); }
+}
+
+function wire() {
+  $$(".sh").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var s = b.parentNode, open = s.getAttribute("data-open") === "1";
+      $$(".step").forEach(function (x) { x.setAttribute("data-open", "0"); });
+      s.setAttribute("data-open", open ? "0" : "1");
+      if (!open) setTimeout(function () {
+        window.scrollTo({ top: s.getBoundingClientRect().top + window.scrollY - 96, behavior: "smooth" }); }, 60);
+    }); });
+
+  if ($("#tGo")) {
+    $("#tGo").addEventListener("click", function () {
+      if (!T || T.done) { T = { r:1, left:secs(), rest:false, p:false, done:false }; bell(1);
+        if (tk) clearInterval(tk); tk = setInterval(tStep, 1000); }
+      else T.p = !T.p;
+      tPaint(); });
+    $("#tSkip").addEventListener("click", function () { if (T && !T.done) { T.left = 1; tStep(); } });
+    $("#tReset").addEventListener("click", tReset);
+  }
+
+  if ($("#spGo")) {
+    $("#spGo").addEventListener("click", function () {
+      if (SP && !SP.done) { spStop(); return; }
+      SP = { i:0, n:0, left:L[idx].sprint.segundos, done:false };
+      bell(1); if (sk) clearInterval(sk); sk = setInterval(spTick, 1000); spPaint(); });
+    $("#spNext").addEventListener("click", function () {
+      if (!SP || SP.done) return;
+      SP.n++; SP.i++;
+      if (SP.i >= L[idx].sprint.items.length) { spStop(); return; }
+      spPaint(); });
+  }
+
+  var c = $("#card");
+  c.addEventListener("click", function () { dk.f = !dk.f; dkPaint(); });
+  c.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dk.f = !dk.f; dkPaint(); } });
+  $("#dPrev").addEventListener("click", function () { if (dk.i > 0) { dk.i--; dk.f = false; dkPaint(); } });
+  $("#dNext").addEventListener("click", function () { if (dk.i < dkItems().length - 1) { dk.i++; dk.f = false; dkPaint(); } });
+  function seen() {
+    if ((S.dicc || []).indexOf(dk.i) < 0) { S.dicc = (S.dicc || []).concat([dk.i]); save(); }
+    dk.f = false; if (dk.i < dkItems().length - 1) dk.i++; dkPaint(); }
+  $("#dHit").addEventListener("click", seen);
+  $("#dMiss").addEventListener("click", seen);
+
+  $("#trShow").addEventListener("click", function () {
+    $$("#trEx .q1").forEach(function (r) { r.setAttribute("data-r", "1"); });
+    this.classList.add("hide"); $("#trDone").classList.remove("hide"); });
+  $("#trDone").addEventListener("click", function () { S.trampa = true; save(); this.textContent = "✓ Marked"; });
+  if (S.trampa) $$("#trEx .q1").forEach(function (r) { r.setAttribute("data-r", "1"); });
+
+  $("#retoShow").addEventListener("click", function () {
+    $$("#retoBox .q1").forEach(function (r) { r.setAttribute("data-r", "1"); });
+    this.classList.add("hide"); });
+  $$("#retoBox .q1").forEach(function (row) {
+    var i = +row.getAttribute("data-i");
+    if ((S.reto || [])[i]) { row.setAttribute("data-r", "1"); row.setAttribute("data-s", S.reto[i]); }
+    $$("button", row).forEach(function (b) {
+      b.addEventListener("click", function () {
+        S.reto = S.reto || []; S.reto[i] = b.getAttribute("data-g");
+        row.setAttribute("data-s", S.reto[i]); save(); }); }); });
+
+  if ($("#esDone")) { if (S.escrito) $("#esDone").textContent = "✓ Marked";
+    $("#esDone").addEventListener("click", function () { S.escrito = true; save(); this.textContent = "✓ Marked"; }); }
+  if ($("#ciDone")) { if (S.cierre) $("#ciDone").textContent = "✓ Marked";
+    $("#ciDone").addEventListener("click", function () { S.cierre = true; save(); this.textContent = "✓ Marked"; }); }
+
+  var n = $("#iaN"), f = $("#iaF");
+  if (n) { n.value = S.iaN || ""; n.addEventListener("change", function () { S.iaN = n.value; save(); }); }
+  if (f) { f.value = S.iaFix || ""; f.addEventListener("input", function () { S.iaFix = f.value; save(); }); }
+
+  var gi = $("#gapIn"); gi.value = S.hueco || "";
+  gi.addEventListener("input", function () { S.hueco = gi.value; save(); });
+
+  $$("[data-cp]").forEach(function (b) {
+    b.addEventListener("click", function () { copy($("#" + b.getAttribute("data-cp")).textContent, b); }); });
+  $("#copy").addEventListener("click", function () { copy($("#out").textContent, this); });
+}
+
+function copy(txt, b) {
+  var old = b.textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function () {
+      b.textContent = "✓ Copied"; setTimeout(function () { b.textContent = old; }, 1600);
+    })["catch"](function () { b.textContent = "Select it and copy"; });
+  } else b.textContent = "Select it and copy";
+}
+
+$$('.tabs button').forEach(function (b) {
+  b.addEventListener("click", function () { view = b.getAttribute("data-v"); render(); window.scrollTo(0, 0); }); });
+$("#bPrev").addEventListener("click", function () { if (idx > 0) { idx--; render(); window.scrollTo(0, 0); } });
+$("#bNext").addEventListener("click", function () { if (idx < L.length - 1) { idx++; render(); window.scrollTo(0, 0); } });
+
+if (!store.get("visto", false) && L.length) { view = "metodo"; store.set("visto", true); }
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El grupo de WhatsApp</title>
+<style>
+  :root{color-scheme:light dark;
+    --surface-0:#f7f6f3;--surface-1:#fcfcfb;--surface-2:#f0efec;--border:#e0dfd9;--border-strong:#c9c7bf;
+    --text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#77756e;
+    --series-1:#2a78d6;--series-2:#eb6834;--accent-bg:#eef4fd;--warn-bg:#fdf1ec;
+    --chip-1:#cde2fb;--chip-2:#f7ded2;}
+  @media (prefers-color-scheme:dark){:root{
+    --surface-0:#131312;--surface-1:#1a1a19;--surface-2:#232322;--border:#333331;--border-strong:#4a4a47;
+    --text-primary:#fff;--text-secondary:#c3c2b7;--text-muted:#96958c;
+    --series-1:#3987e5;--series-2:#d95926;--accent-bg:#16233a;--warn-bg:#2e1e17;
+    --chip-1:#184f95;--chip-2:#6b2c11;}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--surface-0);color:var(--text-primary);
+    font:16px/1.65 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:48px 24px 96px}
+  header{border-bottom:1px solid var(--border);padding-bottom:28px;margin-bottom:38px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 10px;letter-spacing:-.02em}
+  .sub{color:var(--text-secondary);font-size:16px;margin:0}
+  .meta{color:var(--text-muted);font-size:13px;margin-top:14px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:var(--text-muted);margin:52px 0 6px;font-weight:600}
+  h2+.h2sub{font-size:23px;line-height:1.3;margin:0 0 18px;letter-spacing:-.015em;font-weight:600}
+  h3{font-size:17px;margin:28px 0 8px;letter-spacing:-.01em}
+  p{margin:0 0 14px}
+  a{color:var(--series-1)}
+  ul,ol{margin:0 0 16px;padding-left:22px} li{margin-bottom:7px}
+  code{font:13.5px ui-monospace,Menlo,Consolas,monospace;background:var(--surface-2);padding:1.5px 5px;border-radius:4px}
+  .lede{font-size:18px;line-height:1.6}
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin:18px 0}
+  .card.accent{background:var(--accent-bg);border-color:transparent}
+  .card.warn{background:var(--warn-bg);border-color:transparent}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;margin:10px 0 18px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600}
+  .kpi-row{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0 26px}
+  .kpi{flex:1 1 190px;background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .kpi .n{font-size:29px;font-weight:650;letter-spacing:-.03em;line-height:1.1}
+  .kpi .l{font-size:13.5px;color:var(--text-secondary);margin-top:6px;line-height:1.45}
+  .flow{display:grid;grid-template-columns:1fr;gap:10px;margin:20px 0}
+  @media(min-width:620px){.flow{grid-template-columns:76px 1fr}}
+  .flow .t{font-variant-numeric:tabular-nums;color:var(--text-muted);font-size:13.5px;padding-top:15px}
+  .flow .b{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+  .flow .b.core{background:var(--warn-bg);border-color:transparent}
+  .flow .b strong{font-size:15.5px}
+  .flow .b .d{font-size:14px;color:var(--text-secondary);margin-top:4px}
+  .cols{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:660px){.cols{grid-template-columns:1fr 1fr}}
+  .col{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .col h4{margin:0 0 10px;font-size:15px}
+  .col ul{padding-left:18px;margin:0;font-size:14px;color:var(--text-secondary)}
+  .col li{margin-bottom:6px}
+  .no{color:var(--series-2);font-weight:650}
+  pre{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:15px 17px;
+    overflow-x:auto;margin:12px 0;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+  .tip{border-left:3px solid var(--border-strong);padding-left:16px;margin:16px 0;color:var(--text-secondary);font-size:15px}
+  hr{border:none;border-top:1px solid var(--border);margin:46px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>El grupo de WhatsApp</h1>
+  <p class="sub">Un agente de texto que cada mañana actualiza una página con la lección del día, avisa al grupo qué toca, y en la noche recoge quién hizo qué.</p>
+  <p class="meta">3–5 personas · el agente solo maneja texto · el habla ocurre fuera de él y se reporta · corrección individual</p>
+</header>
+
+<p class="lede">Hay una tensión de entrada que conviene resolver antes de mirar el horario: el agente es de texto, pero lo que este programa entrena es hablar. Si no se resuelve bien, el grupo termina siendo un club de gramática — que es exactamente lo que la evidencia dice que no funciona.</p>
+
+<h2>Parte 1</h2>
+<p class="h2sub">Cómo se reparte el trabajo entre lo que el agente puede y no puede tocar</p>
+
+<p>La solución tiene dos mitades.</p>
+
+<p><strong>El habla sale del canal.</strong> El bloque de repetición —cinco rondas de dos minutos sobre el mismo tema— se hace en voz alta, solo, donde sea. El agente no lo recibe: te dice qué tema toca y en la noche tú le reportas por texto que lo hiciste. Funciona por confianza, y eso está bien: la adherencia en este tipo de programa no se sostiene con vigilancia, se sostiene con que alguien pregunte todos los días.</p>
+
+<p><strong>Lo que sí puede viajar por texto es la etapa que tienes rota.</strong> Y esto no es una concesión: hablar son tres etapas —conceptualizar, formular y articular— y tu cuello de botella está en la segunda, en recuperar la palabra y armar la frase. La articulación no es el problema. Un reto escrito contrarreloj entrena formulación de verdad.</p>
+
+<div class="card warn">
+  <p style="margin:0"><strong>La honestidad obliga a un límite:</strong> la destreza es específica. Practicar recuperación escrita no transfiere entero a recuperación hablada — la misma lógica por la que escuchar no transfiere a hablar. El reto de texto <em>complementa</em> el bloque de habla; no lo reemplaza. Quien haga solo el reto no está entrenando, está sintiendo que entrena.</p>
+</div>
+
+<h3>Qué gana la página</h3>
+<p>Que el agente edite una página cada mañana abre algo que el chat no permite: material didáctico que se queda, se hojea y se repasa. La lección deja de ser un mensaje que se va hacia arriba en el hilo.</p>
+<p>Eso permite meter las piezas que pediste —diccionario, gramática— sin que compitan con el ejercicio principal, porque van en la página y el mensaje del grupo solo apunta. Y permite algo mejor: como las lecciones viejas no se borran, el <strong>repaso espaciado</strong> del vocabulario funciona de verdad. El reto de cada día no es material nuevo: son frases de los días −2, −6 y −15.</p>
+
+<hr>
+
+<h2>Parte 2</h2>
+<p class="h2sub">Qué tiene la lección de cada día</p>
+
+<p>Unos 20 minutos. Cinco partes, y solo una es obligatoria.</p>
+
+<table>
+  <thead><tr><th style="width:24%">Parte</th><th>Qué es y para qué sirve</th><th style="width:14%">Tiempo</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>El bloque de habla</strong></td>
+      <td>Un tema, 5 rondas de 2 minutos, en voz alta, el mismo tema las cinco veces. Es el único ejercicio con transferencia demostrada a temas nuevos y sostenida a 4 semanas. <strong>Lo único que no se puede saltar.</strong></td>
+      <td>10 min</td>
+    </tr>
+    <tr>
+      <td><strong>Diccionario del día</strong></td>
+      <td>5 expresiones fijas de varias palabras — no palabras sueltas. Se lee el español y se dice el inglés en voz alta antes de destapar. Dentro de una expresión automatizada no se puede pausar, y ahí está la ganancia.</td>
+      <td>6 min</td>
+    </tr>
+    <tr>
+      <td><strong>La trampa del día</strong></td>
+      <td>Un punto de gramática al día, elegido porque el español empuja al error: "I have 30 years", "depends of", "I'm agree", "I don't know where is he". Viene con tres frases para producir, no solo para leer.</td>
+      <td>4 min</td>
+    </tr>
+    <tr>
+      <td><strong>Reto rápido</strong></td>
+      <td>5 frases en español que se traducen por texto en el grupo, rápido y sin buscar nada. Son repaso espaciado de días anteriores, no material nuevo.</td>
+      <td>3 min</td>
+    </tr>
+    <tr>
+      <td><strong>Reporte</strong></td>
+      <td>Un mensaje corto de vuelta al agente. La línea que importa es "se me trabó": lo que quisiste decir y no pudiste.</td>
+      <td>1 min</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="card accent">
+  <p style="margin:0 0 10px"><strong>Sobre la parte de gramática, con honestidad.</strong> La instrucción explícita funciona, pero el conocimiento gramatical empieza siendo declarativo — sabes la regla — y solo se vuelve utilizable al hablar si lo produces. Por eso cada trampa trae tres frases que se dicen en voz alta, y por eso hay una sola al día en vez de una lección completa.</p>
+  <p style="margin:0">Si la parte de gramática crece, se come el tiempo del bloque de habla, y el programa se convierte en lo que ya sabes hacer: entender inglés.</p>
+</div>
+
+<hr>
+
+<h2>Parte 3</h2>
+<p class="h2sub">El día del agente</p>
+
+<div class="flow">
+  <div class="t">07:00</div>
+  <div class="b"><strong>Actualiza la página</strong>
+    <div class="d">Copia el objeto de la lección de hoy del plan de contenido y lo pega dentro del bloque marcado. No toca nada más del archivo. Verifica que la página cargue antes de avisar.</div></div>
+
+  <div class="t">07:30</div>
+  <div class="b"><strong>Avisa al grupo</strong>
+    <div class="d">Mensaje corto con el foco del día, el tema del bloque, la trampa y el enlace. Ya está redactado; solo reemplaza el enlace.</div></div>
+
+  <div class="t">13:00</div>
+  <div class="b core"><strong>Lanza el reto rápido</strong>
+    <div class="d">Las 5 frases en el grupo. Los miembros responden por texto. El agente <em>no</em> publica las respuestas y <em>no</em> corrige a nadie.</div></div>
+
+  <div class="t">20:00</div>
+  <div class="b"><strong>Pide el reporte y registra</strong>
+    <div class="d">Cada quien manda cinco líneas. El agente anota rondas completadas, sí/no de cada parte, y el hueco reportado — íntegro, sin corregir.</div></div>
+
+  <div class="t">Vie 20:00</div>
+  <div class="b"><strong>Resumen semanal</strong>
+    <div class="d">Conteo por persona y total de huecos recogidos. Sin rankings.</div></div>
+</div>
+
+<p class="tip">Tres publicaciones al día. Es el techo antes de que un grupo con bot se silencie, y silenciado está muerto.</p>
+
+<h3>Cómo edita la página sin romperla</h3>
+<p>Es la única operación técnica que hace, y está diseñada para que un modelo básico no pueda hacer mucho daño. La página tiene un solo bloque editable, delimitado con marcas visibles, que contiene únicamente datos:</p>
+
+<pre>const LECCIONES = [
+  { ...lecciones anteriores... },
+  { ...la de hoy va aquí... },
+]; /* ══ FIN DEL BLOQUE EDITABLE ══ */</pre>
+
+<p>El agente pega, no redacta: los 20 objetos del mes ya están escritos, con la coma puesta. Y si aun así lo rompe, la página no se queda en blanco — muestra un aviso que dice qué revisar, y las lecciones anteriores siguen accesibles desde el selector.</p>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="n">20</div><div class="l">lecciones completas, listas para pegar</div></div>
+  <div class="kpi"><div class="n">100</div><div class="l">expresiones con su frase modelo y sus trampas de traducción</div></div>
+  <div class="kpi"><div class="n">20</div><div class="l">puntos de interferencia español→inglés, cada uno con 3 frases para producir</div></div>
+</div>
+
+<hr>
+
+<h2>Parte 4</h2>
+<p class="h2sub">Quién hace qué</p>
+
+<div class="cols">
+  <div class="col">
+    <h4>El agente</h4>
+    <ul>
+      <li>Actualiza la página cada mañana</li>
+      <li>Publica los tres mensajes del día, ya redactados</li>
+      <li>Registra participación y guarda los huecos reportados</li>
+      <li>Sostiene las reglas con respuestas fijas</li>
+      <li class="no">No corrige. No felicita. No publica las respuestas. No inventa contenido.</li>
+    </ul>
+  </div>
+  <div class="col">
+    <h4>Cada miembro</h4>
+    <ul>
+      <li>Hace el bloque de habla en voz alta y lo reporta</li>
+      <li>Dice el diccionario y las frases de la trampa en voz alta</li>
+      <li>Responde el reto por texto, sin buscar</li>
+      <li>Reporta su hueco del día — la línea más valiosa</li>
+      <li>Lleva sus correcciones con su propio corrector privado</li>
+    </ul>
+  </div>
+</div>
+
+<h3>El registro, y por qué es tan corto</h3>
+<p>Cinco campos por persona y por día: rondas completadas, tres sí/no, y el hueco. Nada de calidad — el agente no tiene cómo evaluarla, y un registro de calidad mal hecho da señal falsa y convierte la participación en algo que se puede perder.</p>
+<p>Los huecos son el activo real del mes. Al cabo de cuatro semanas cada persona tiene ~20 frases que quiso decir y no pudo, en sus propias palabras. Eso vale más que cualquier lista de vocabulario general, y es de donde debería salir el contenido del mes 2.</p>
+
+<div class="card">
+  <p style="margin:0 0 8px"><strong>Qué pasa cuando alguien desaparece:</strong> nada.</p>
+  <p style="margin:0">Ni mensaje privado, ni mención de la ausencia. El cierre sigue nombrando a quienes reportaron y ya. La presión explícita hace que la gente se salga del grupo en vez de volver, y en un grupo de cuatro perder a uno es perder el 25% del grupo.</p>
+</div>
+
+<hr>
+
+<h2>Parte 5</h2>
+<p class="h2sub">Qué falta para arrancar</p>
+
+<ol>
+  <li><strong>Alojar la página</strong> en algún sitio donde el agente pueda editarla y el grupo abrirla con un enlace.</li>
+  <li><strong>Pasarle al agente</strong> las instrucciones operativas y el plan de contenido del mes 1.</li>
+  <li><strong>Confirmar las horas.</strong> Las tres son una propuesta para gente que trabaja; se corren enteras si hace falta.</li>
+  <li><strong>Que cada miembro monte su corrector privado</strong> antes del primer día. Sin eso, el grupo produce habla y nadie la corrige nunca — que es el modo de fallo silencioso de este diseño.</li>
+  <li><strong>El checkpoint 0 de cada quien</strong> en la primera semana: dos minutos grabados con la consigna fija, sin preparar, guardados y sin volver a grabar. Es la única grabación que sí hace falta, y es para comparar dentro de un mes.</li>
+</ol>
+
+<p class="tip" style="margin-top:32px">El contenido de las cuatro semanas está en <code>plan-contenido-mes-1.md</code>. Las instrucciones del agente, incluida la lista de lo que nunca debe hacer, en <code>bot-instrucciones.md</code>. La página con el día 1 ya cargado es <code>leccion.html</code>.</p>
+
+</div>
+</body>
+</html>

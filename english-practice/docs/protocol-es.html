@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protocolo de producción oral en inglés</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --surface-0: #f7f6f3;
+    --surface-1: #fcfcfb;
+    --surface-2: #f0efec;
+    --border:    #e0dfd9;
+    --border-strong: #c9c7bf;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #77756e;
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --accent-bg: #eef4fd;
+    --warn-bg:   #fdf1ec;
+    --grid: #e6e4de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface-0: #131312;
+      --surface-1: #1a1a19;
+      --surface-2: #232322;
+      --border:    #333331;
+      --border-strong: #4a4a47;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #96958c;
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --accent-bg: #16233a;
+      --warn-bg:   #2e1e17;
+      --grid: #2e2e2c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font: 16px/1.65 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 48px 24px 96px; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 28px; margin-bottom: 40px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; letter-spacing: -0.02em; }
+  .sub { color: var(--text-secondary); font-size: 16px; margin: 0; }
+  .meta { color: var(--text-muted); font-size: 13px; margin-top: 14px; }
+  h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--text-muted); margin: 52px 0 6px; font-weight: 600;
+  }
+  h2 + .h2sub { font-size: 23px; line-height: 1.3; margin: 0 0 18px; letter-spacing: -0.015em; font-weight: 600; }
+  h3 { font-size: 17px; margin: 30px 0 8px; letter-spacing: -0.01em; }
+  p { margin: 0 0 14px; }
+  a { color: var(--series-1); }
+  strong { font-weight: 650; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 7px; }
+  code {
+    font: 13.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: var(--surface-2); padding: 1.5px 5px; border-radius: 4px;
+  }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px 24px; margin: 18px 0;
+  }
+  .card.accent { background: var(--accent-bg); border-color: transparent; }
+  .card.warn   { background: var(--warn-bg);   border-color: transparent; }
+  .lede { font-size: 18px; line-height: 1.6; color: var(--text-primary); }
+  .kpi-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0 26px; }
+  .kpi {
+    flex: 1 1 200px; background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 20px;
+  }
+  .kpi .n { font-size: 30px; font-weight: 650; letter-spacing: -0.03em; line-height: 1.1; }
+  .kpi .l { font-size: 13.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.45; }
+  figure { margin: 26px 0 10px; }
+  figcaption { font-size: 13.5px; color: var(--text-muted); margin-top: 12px; line-height: 1.55; }
+  .fig-title { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .fig-sub { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 14px; }
+  .chartbox { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 20px 16px 12px; position: relative; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; padding: 4px 8px 0; font-size: 13.5px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 8px 0 16px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  th { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  details { margin: 10px 0 18px; }
+  summary { cursor: pointer; font-size: 14px; color: var(--text-secondary); }
+  .step {
+    display: grid; grid-template-columns: 46px 1fr; gap: 16px;
+    padding: 18px 0; border-bottom: 1px solid var(--border);
+  }
+  .step:last-child { border-bottom: none; }
+  .step .badge {
+    font-size: 12px; font-weight: 650; color: var(--text-secondary);
+    background: var(--surface-2); border-radius: 8px; height: 30px;
+    display: flex; align-items: center; justify-content: center; letter-spacing: -0.01em;
+  }
+  .step h4 { margin: 3px 0 6px; font-size: 16.5px; }
+  .step p { margin: 0 0 8px; font-size: 15px; color: var(--text-secondary); }
+  .step .why { font-size: 13.5px; color: var(--text-muted); }
+  pre {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; margin: 12px 0 6px;
+    font: 13.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+  }
+  .no { color: var(--series-2); font-weight: 650; }
+  .yes { color: var(--series-1); font-weight: 650; }
+  .src { font-size: 13.5px; color: var(--text-secondary); }
+  .src li { margin-bottom: 9px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 46px 0; }
+  .tip { border-left: 3px solid var(--border-strong); padding-left: 16px; margin: 16px 0; color: var(--text-secondary); font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Cómo pasar de entender inglés a hablarlo</h1>
+  <p class="sub">Un protocolo cerrado: diagnóstico, motor de práctica, bucle de corrección y medición. Construido sobre la evidencia de adquisición de segundas lenguas, no sobre consejos.</p>
+  <p class="meta">Diseñado para: 60 min/día · objetivo general · sin tutor de pago · 19 de agosto de 2026</p>
+</header>
+
+<p class="lede">Tu problema tiene un nombre en la literatura y una ubicación anatómica precisa. No es falta de vocabulario, no es falta de exposición, y no se arregla con más input. Este documento explica dónde está exactamente el cuello de botella, qué lo mueve y qué no, y cómo montar el bucle que lo cierra.</p>
+
+<h2>Parte 1</h2>
+<p class="h2sub">El diagnóstico: por qué entender no transfiere a hablar</p>
+
+<p>Hablar no es "saber inglés aplicado". Es un proceso en tres etapas: <strong>conceptualizar</strong> (decidir qué decir) → <strong>formular</strong> (recuperar las palabras y codificar la gramática) → <strong>articular</strong>. En tu lengua materna las etapas 2 y 3 son automáticas y corren en paralelo con la 1: mientras dices un fragmento, ya estás codificando el siguiente. En una segunda lengua no automatizada, la formulación consume atención consciente, el paralelismo se rompe, y el proceso pasa a ser <em>serial</em>. Ahí está tu bloqueo. No en lo que sabes: en la velocidad con que lo recuperas.</p>
+
+<p>Esto no es una metáfora. Un estudio de 2025 en <em>Applied Linguistics</em> (N=210) separó dos cosas que solemos confundir: <strong>saber</strong> el vocabulario y <strong>recuperarlo rápido</strong>. El resultado es la clave de todo tu caso:</p>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="n">10,7%</div>
+    <div class="l">de la varianza en pausas a mitad de frase se explica por la <strong>velocidad de recuperación</strong> del vocabulario</div>
+  </div>
+  <div class="kpi">
+    <div class="n">0,8%</div>
+    <div class="l">se explica por <strong>saber</strong> ese mismo vocabulario. Conocer las palabras no predice ninguna medida de fluidez</div>
+  </div>
+</div>
+
+<h3>Cuánto de tu comprensión transfiere a tu habla: cero</h3>
+
+<p>Esto suele decirse en tono suave —"leer ayuda menos"—. La evidencia es más dura que eso. Un metaanálisis de 35 experimentos comparó instrucción basada en comprensión (CBI) contra instrucción basada en producción (PBI):</p>
+
+<table>
+  <thead><tr><th>Medida de resultado</th><th class="num">Post-test inmediato</th><th class="num">Post-test diferido (8+ días)</th></tr></thead>
+  <tbody>
+    <tr><td>Comprensión</td><td class="num"><em>d</em> = 1,09 a favor de CBI</td><td class="num"><em>d</em> = 0,25 (n.s.)</td></tr>
+    <tr><td><strong>Producción</strong></td><td class="num"><strong><em>d</em> = −0,08 (n.s.)</strong></td><td class="num"><strong><em>d</em> = −0,21 a favor de PBI</strong></td></tr>
+  </tbody>
+</table>
+
+<p>Practicar comprensión te compra un efecto grande en comprensión y, sobre producción, <strong>un efecto estadísticamente indistinguible de cero</strong> — que a las dos semanas se vuelve negativo respecto a haber practicado producción. En el experimento fundacional de DeKeyser (1997), quienes practicaron un patrón solo en comprensión y luego fueron evaluados en producción pagaron <strong>+68% de tiempo de respuesta y 2,68× la tasa de error</strong> frente a quienes lo practicaron produciendo.</p>
+
+<div class="card accent">
+  <p style="margin:0"><strong>La consecuencia práctica es incómoda pero limpia:</strong> los podcasts, las series y las lecturas mantienen y expanden tu base de conocimiento —lo cual es real y valioso— pero su contribución a que hables mejor es, en el mejor de los casos, cero. Si tu meta es hablar, el tiempo tiene que reasignarse, no añadirse.</p>
+</div>
+
+<h3>Y ahora lo específico: el problema no es la velocidad, son las pausas a mitad de frase</h3>
+
+<p>Aquí está la tabla más útil de toda esta literatura. Compara hablantes B2, C1 y nativos en la misma tarea, separando <em>dónde</em> caen las pausas:</p>
+
+<figure>
+  <div class="fig-title">Lo que realmente cambia al subir de nivel</div>
+  <div class="fig-sub">Pausas silenciosas por cada 100 palabras, narración descriptiva (corpus LINDSEI/LOCNEC)</div>
+  <div class="chartbox">
+    <svg viewBox="0 0 640 300" role="img" aria-label="Gráfico de líneas: las pausas dentro de la frase caen de 6,42 en B2 a 3,78 en C1 y 2,06 en nativos, mientras las pausas en el límite de frase se mantienen casi planas en 5,80, 5,96 y 4,64.">
+      <!-- gridlines -->
+      <g stroke="var(--grid)" stroke-width="1">
+        <line x1="44" y1="260" x2="530" y2="260"/>
+        <line x1="44" y1="191.4" x2="530" y2="191.4"/>
+        <line x1="44" y1="122.9" x2="530" y2="122.9"/>
+        <line x1="44" y1="54.3" x2="530" y2="54.3"/>
+      </g>
+      <g fill="var(--text-muted)" font-size="12" text-anchor="end" font-family="inherit">
+        <text x="34" y="264">0</text>
+        <text x="34" y="195.4">2</text>
+        <text x="34" y="126.9">4</text>
+        <text x="34" y="58.3">6</text>
+      </g>
+      <g fill="var(--text-secondary)" font-size="13" text-anchor="middle" font-family="inherit">
+        <text x="44" y="282">B2</text>
+        <text x="287" y="282">C1</text>
+        <text x="530" y="282">Nativo</text>
+      </g>
+
+      <!-- series 2: clause boundary (flat) -->
+      <polyline points="44,61.1 287,55.7 530,100.9" fill="none" stroke="var(--series-2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- series 1: within clause (steep drop) -->
+      <polyline points="44,39.9 287,130.4 530,189.4" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+
+      <g stroke="var(--surface-1)" stroke-width="2">
+        <circle cx="44"  cy="61.1"  r="4.5" fill="var(--series-2)"/>
+        <circle cx="287" cy="55.7"  r="4.5" fill="var(--series-2)"/>
+        <circle cx="530" cy="100.9" r="4.5" fill="var(--series-2)"/>
+        <circle cx="44"  cy="39.9"  r="4.5" fill="var(--series-1)"/>
+        <circle cx="287" cy="130.4" r="4.5" fill="var(--series-1)"/>
+        <circle cx="530" cy="189.4" r="4.5" fill="var(--series-1)"/>
+      </g>
+
+      <!-- direct labels -->
+      <g font-size="13" font-family="inherit" fill="var(--text-primary)" font-weight="600">
+        <text x="544" y="105">4,64</text>
+        <text x="544" y="193">2,06</text>
+      </g>
+      <g font-size="12" font-family="inherit" fill="var(--text-muted)">
+        <text x="544" y="120">límite</text>
+        <text x="544" y="208">interior</text>
+      </g>
+      <g font-size="12.5" font-family="inherit" fill="var(--text-muted)" text-anchor="middle">
+        <text x="44"  y="30">6,42</text>
+        <text x="287" y="148">3,78</text>
+        <text x="44"  y="79">5,80</text>
+        <text x="287" y="44">5,96</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--series-1)"></i> Pausas <strong>dentro</strong> de la frase (formulación)</span>
+      <span><i class="swatch" style="background:var(--series-2)"></i> Pausas en el <strong>límite</strong> de frase (planificación)</span>
+    </div>
+  </div>
+  <figcaption>Las pausas en el límite de frase apenas se mueven: 5,80 → 5,96 → 4,64. Los nativos también pausan ahí, porque están decidiendo qué decir. Las pausas <em>dentro</em> de la frase caen a un tercio: 6,42 → 3,78 → 2,06. Eso —y no la velocidad— es lo que se desarrolla. Datos: Huang &amp; Gráf (2020).</figcaption>
+</figure>
+
+<details>
+  <summary>Ver los datos como tabla</summary>
+  <table>
+    <thead><tr><th>Pausas / 100 palabras</th><th class="num">B2</th><th class="num">C1</th><th class="num">Nativo</th></tr></thead>
+    <tbody>
+      <tr><td>Dentro de la frase</td><td class="num">6,42</td><td class="num">3,78</td><td class="num">2,06</td></tr>
+      <tr><td>En el límite de frase</td><td class="num">5,80</td><td class="num">5,96</td><td class="num">4,64</td></tr>
+      <tr><td>Dentro de un constituyente</td><td class="num">2,20</td><td class="num">1,02</td><td class="num">0,45</td></tr>
+      <tr><td>Velocidad (palabras/min)</td><td class="num">118</td><td class="num">142</td><td class="num">174</td></tr>
+    </tbody>
+  </table>
+</details>
+
+<p>Hay un segundo hallazgo que refuerza esto: la velocidad de habla <strong>llega a un techo en B2</strong> y deja de desarrollarse (en el estudio APTIS, B2 y C1+ marcan idéntico: 3,54 sílabas/s). Lo que sigue moviéndose por encima de B2 es <em>dónde</em> pausas, no qué tan rápido hablas.</p>
+
+<div class="card">
+  <p style="margin:0"><strong>Tu objetivo real, en una frase:</strong> dejar de trabarte a mitad de oración. No hablar más rápido, no eliminar el acento, no dejar de decir "um". Reducir las paradas de formulación en medio de la frase.</p>
+</div>
+
+<hr>
+
+<h2>Parte 2</h2>
+<p class="h2sub">El motor: repetición del mismo contenido</p>
+
+<p>De todas las técnicas que se promueven para fluidez oral, <strong>solo una tiene evidencia limpia de que transfiere a temas nuevos y persiste en el tiempo</strong>: repetir el mismo contenido varias veces seguidas.</p>
+
+<p>El estudio que lo establece (de Jong &amp; Perfetti, 2011) tiene un detalle de diseño que lo vuelve decisivo. Tenía tres grupos: uno repetía el mismo tema tres veces; otro hacía <em>exactamente los mismos tiempos</em> pero con tres temas distintos; y un control. Resultados medidos en monólogos sobre <strong>temas nuevos</strong>, una y cuatro semanas después:</p>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="n">1,12 → 0,94 s</div>
+    <div class="l">duración media de pausa en el grupo de repetición (<em>p</em> = 0,005), sobre temas nuevos, sostenido a 4 semanas</div>
+  </div>
+  <div class="kpi">
+    <div class="n">Cero</div>
+    <div class="l">cambio en el grupo sin repetición, con idéntico tiempo de práctica. Ninguna medida se movió</div>
+  </div>
+</div>
+
+<p>Los autores descartaron que fuera memorización: analizaron qué palabras se repetían entre entregas y eran vocabulario general (<em>be, have, think, also</em>), no del tema; en el post-test los participantes reutilizaron apenas 5–8 palabras del entrenamiento. Lo que se automatiza es <strong>el ensamblaje de frases</strong>, no el contenido.</p>
+
+<p>Y la dosis es sorprendentemente pequeña. El ensayo aleatorizado más limpio (Kakitani &amp; Kormos, N=116, con post-tests sobre prompts nuevos a 7 y 28 días) obtuvo <em>d</em> ≈ 0,5–0,6 en pausas a mitad de frase con un total de <strong>12 narraciones</strong>. Doce. Cuatro sesiones.</p>
+
+<h3>Las tres reglas que la evidencia impone sobre cómo repetir</h3>
+
+<table>
+  <thead><tr><th>Regla</th><th>Por qué</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Mismo tiempo cada ronda.</strong> No reduzcas el reloj</td>
+      <td>La técnica popular "4/3/2" acorta el tiempo en cada repetición. Boers &amp; Deconinck compararon 4/3/2 contra 3/3/3 y <strong>el tiempo constante salió mejor</strong> en fluidez, precisión, léxico y contenido. Boers (2014) encontró que la presión de tiempo degrada la precisión y empuja a recitar de memoria. El ingrediente activo es repetir, no apurarse</td>
+    </tr>
+    <tr>
+      <td><strong>Cuatro o cinco rondas, no tres</strong></td>
+      <td>Lambert, Kormos &amp; Minn midieron qué mejora en cada repetición: las pausas de límite se arreglan hacia la ronda 2, <strong>las de mitad de frase siguen mejorando hasta la ronda 4</strong>, y las auto-correcciones solo bajan después de la 4. Parar en 3 es quedarse justo antes de tu objetivo</td>
+    </tr>
+    <tr>
+      <td><strong>Reparte, no acumules</strong></td>
+      <td>Suzuki &amp; Hanzawa: 6 repeticiones seguidas reducen pausas <em>pero</em> enlentecen la articulación (<em>g</em> = −0,88 a −1,73), aumentan la repetición literal (<em>g</em> = 1,13) y disparan el aburrimiento. Es un arma de doble filo documentada</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>Parte 3</h2>
+<p class="h2sub">El bucle: por qué la corrección importa más que la conversación</p>
+
+<p>Hablar sin corrección no tiene evidencia controlada que lo respalde como intervención. Hablar <em>con</em> corrección la tiene, y es fuerte. Dos metaanálisis independientes coinciden en algo que cambia por completo cómo deberías usar una IA:</p>
+
+<table>
+  <thead><tr><th>Tipo de feedback</th><th class="num">Efecto</th><th>Qué hace</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Prompts</strong> (te señalan el error y te hacen reintentar)</td><td class="num"><em>d</em> = 0,83</td><td>Genera un evento de <em>recuperación</em> en tu cabeza</td></tr>
+    <tr><td>Corrección explícita</td><td class="num"><em>d</em> = 0,84</td><td>Te dan la regla</td></tr>
+    <tr><td><strong>Recasts</strong> (te repiten la versión correcta y siguen)</td><td class="num"><em>d</em> = 0,53</td><td>Tú solo escuchas. No recuperas nada</td></tr>
+  </tbody>
+</table>
+
+<p>Además: el efecto es <strong>mayor sobre habla espontánea</strong> (<em>d</em> = 0,97) que sobre ejercicios cerrados (0,70) o juicios metalingüísticos (0,45); y el feedback <strong>inmediato</strong> se sostiene a dos semanas mientras el diferido no (<em>d</em> = 0,74 sostenido vs 0,58 no significativo).</p>
+
+<div class="card warn">
+  <p style="margin:0 0 10px"><strong>Esto es exactamente donde fallan por defecto todas las apps de conversación con IA.</strong> Su comportamiento natural es el recast: reformulan lo que dijiste en buen inglés y siguen la charla. Es el modo con la mitad del efecto.</p>
+  <p style="margin:0">La versión fuerte hay que pedirla explícitamente. Abajo está el prompt.</p>
+</div>
+
+<h3>Prompt para usar cualquier IA como corrector (copiar y pegar)</h3>
+
+<pre>You are my English speaking coach. I am a Spanish speaker (Colombia) with strong
+receptive English and weak spoken production. My specific problem is mid-clause
+pausing: I stall in the middle of sentences while retrieving words and structures.
+
+Rules for how you correct me — follow these strictly:
+
+1. NEVER give me the corrected version first. When something is wrong, point to
+   the location and the type of problem, then stop and let me retry.
+   Say: "Second sentence, the verb phrase — try again."
+   NOT:  "You should say 'I have been working'."
+2. Only after two failed attempts, give me the answer.
+3. After any correction, make me say the whole sentence again, correctly, out loud.
+   Do not move on until I do.
+4. Correct at most 3 things per turn. Pick the ones that most affect
+   comprehensibility, not the most technically wrong ones.
+5. Ignore filled pauses (um, uh), minor repetitions and self-corrections
+   completely. Native speakers do those. Do not mention them.
+6. At the end of each session, give me a list of what I TRIED to say but couldn't,
+   as English multiword chunks (3-6 words), not single words. Include the Spanish
+   I was reaching for. This is my study material.
+
+Session format: I will paste a transcript of myself speaking, or speak to you
+directly. Start by asking me for today's topic.</pre>
+
+<p class="tip">Funciona con Claude por voz (disponible en el plan gratuito, con soporte de español en beta desde junio de 2026), con ChatGPT voice, o pegando la transcripción en texto. La versión escrita es más lenta pero da correcciones más precisas.</p>
+
+<hr>
+
+<h2>Parte 4</h2>
+<p class="h2sub">La sesión diaria</p>
+
+<p>El núcleo son unos 40 minutos. Te doy la estructura de 55 y luego una nota honesta sobre por qué no deberías estirarla más.</p>
+
+<div class="card" style="padding:6px 24px">
+
+<div class="step">
+  <div class="badge">8 min</div>
+  <div>
+    <h4>Drill de chunks</h4>
+    <p>Tarjetas de <em>producción</em>: ves el español, dices el inglés <strong>en voz alta</strong>, luego compruebas. Nunca al revés. Unidades de 3–6 palabras (<em>"as far as I can tell"</em>), no palabras sueltas. Material: la lista que te generó la IA ayer.</p>
+    <p class="why">Por qué: no hay pausas dentro de las secuencias formulaicas (Tavakoli 2011) — un chunk automatizado es un tramo de frase que no puedes trabar. La frecuencia de chunks correlaciona <em>r</em> = 0,56 con velocidad de habla. Ojo con la dosis: 10 ítems por sesión es realista, y hay que re-espaciarlos o se pierden a las 2 semanas.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="badge">20 min</div>
+  <div>
+    <h4>Bloque de repetición — el núcleo</h4>
+    <p>Un tema nuevo cada día. Habla 2 minutos. Repite <strong>5 veces el mismo contenido, 2 minutos cada vez</strong>, sin notas y sin acortar el reloj. Graba la ronda 1 y la ronda 5.</p>
+    <p class="why">Por qué: es la única técnica con transferencia demostrada a temas nuevos, sostenida a 4 semanas. Las rondas 4 y 5 son las que atacan tu métrica objetivo. Si un día solo tienes tiempo para una cosa, es esta.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="badge">15 min</div>
+  <div>
+    <h4>Ciclo de corrección</h4>
+    <p>Transcribe la ronda 5 (Whisper lo hace en segundos, o la app de notas del teléfono) y pásasela a la IA con el prompt de arriba. Cada corrección termina contigo <strong>volviendo a decir la frase completa en voz alta</strong>. Ese acto es el punto entero del ejercicio.</p>
+    <p class="why">Por qué: prompts (0,83) vs recasts (0,53); inmediato &gt; diferido; efecto máximo sobre habla libre. Y sobre la transcripción: hacerla a mano cuesta 12–30 minutos por cada 3 de audio y solo detectas el 25% de tus propios errores — por eso la técnica se descartó en los 2000 y por eso funciona ahora.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="badge">5 min</div>
+  <div>
+    <h4>Cosecha de huecos</h4>
+    <p>Anota en español todo lo que quisiste decir y no pudiste. La IA te lo devuelve convertido en chunks. Eso es el material de mañana.</p>
+    <p class="why">Por qué: cierra el bucle. Tu programa de estudio sale de tus propios fallos de recuperación, no de una lista genérica de vocabulario.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="badge">resto</div>
+  <div>
+    <h4>Input libre — sin culpa y sin ilusiones</h4>
+    <p>Series, podcasts, lectura, lo que disfrutes. Mantiene y expande la base de conocimiento.</p>
+    <p class="why">Por qué está al final: no contribuye a tu producción (Parte 1). Es mantenimiento, no entrenamiento. Ponerlo aquí es la forma honesta de conservarlo.</p>
+  </div>
+</div>
+
+</div>
+
+<h3>Una vez por semana: presión real, gratis</h3>
+
+<p>La dosis necesaria es menor de lo que parece. En el estudio de Saito et al. (2021), <strong>4,5 horas totales de conversación repartidas en 12 semanas</strong> —unos 23 minutos semanales— produjeron <em>d</em> = 1,14 en ratio de pausas. Y los interlocutores solo corregían entre el 5% y el 15% de los errores.</p>
+
+<ul>
+  <li><strong>HelloTalk Voicerooms</strong> — salas de voz públicas en vivo, incluidas en el plan gratuito sin límite. La opción gratuita más directa que existe hoy.</li>
+  <li><strong>Discord: "Spanish-English-Portuguese Classroom"</strong> — 20.627 miembros, ~1.700 en línea. Canales de voz, gratis.</li>
+  <li><strong>Toastmasters Bogotá English Club</strong> — sesiona en inglés, martes alternos 19:25, híbrido (presencial en Cra. 20 #134A-65 + Zoom). <strong>Visitar es gratis</strong> y sin compromiso; solo pagas si te afilias.</li>
+  <li><strong>Meetup "Bogotá English, Spanish and French Language Meetup"</strong> — 17.276 miembros, 219 eventos próximos, varios con entrada libre.</li>
+</ul>
+
+<hr>
+
+<h2>Parte 5</h2>
+<p class="h2sub">Lo que hay que dejar de hacer</p>
+
+<p>Esta sección vale tanto como el resto. Son técnicas populares con evidencia negativa o nula sobre habla espontánea — es decir, formas de sentir que entrenas sin entrenar.</p>
+
+<table>
+  <thead><tr><th>Técnica</th><th>Qué encontró la evidencia</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Shadowing</strong></td>
+      <td>22 sesiones en 16 semanas: <strong>nulo</strong> en velocidad y en reparación. Lo único que se movió fue la <em>ubicación</em> de las pausas. El <strong>83% de los participantes creía que estaba funcionando</strong> — la brecha percepción/medición más limpia de toda la literatura. <em>(Te lo recomendé en mi respuesta anterior. Estaba mal.)</em></td>
+    </tr>
+    <tr>
+      <td><strong>Leer en voz alta</strong></td>
+      <td>11 semanas de protocolos de lectura: la velocidad de habla <strong>no aumentó</strong>. Mejoras solo en la propia tarea de leer.</td>
+    </tr>
+    <tr>
+      <td><strong>Entrenamiento de pronunciación</strong></td>
+      <td>32 horas en 8 semanas: sin efecto significativo sobre inteligibilidad ni fluidez en habla espontánea (<em>p</em> = 0,25 y 0,39). Funciona en tareas controladas; no cruza a la conversación.</td>
+    </tr>
+    <tr>
+      <td><strong>Planificar antes de hablar</strong></td>
+      <td>Mejora <em>esa</em> intervención, no tu habilidad. Es una condición de rendimiento, no una intervención de aprendizaje: el grupo que planificaba cada tema nuevo en de Jong &amp; Perfetti ganó cero.</td>
+    </tr>
+    <tr>
+      <td><strong>Perseguir los "um" y "uh"</strong></td>
+      <td>Correlacionan <em>r</em> = −0,15 a −0,24 con la fluidez percibida — la medida más débil de todas, no significativa en varios estudios. Los nativos producen ~6,3 por minuto. Clark &amp; Fox Tree argumentan que <em>son palabras</em>: señalan una demora inminente. Suben con la ansiedad, no con la falta de nivel.</td>
+    </tr>
+    <tr>
+      <td><strong>Contar auto-correcciones</strong></td>
+      <td><em>r</em> = −0,08 a −0,13. No se movieron en 5 meses de inmersión. Y son no-monotónicas: corregirte requiere notar el error, algo que un nivel más bajo no puede hacer. Mala métrica de progreso.</td>
+    </tr>
+    <tr>
+      <td><strong>Acortar el reloj (4/3/2)</strong></td>
+      <td>Ver Parte 2. Tiempo constante rinde igual o mejor, y la presión temporal degrada la precisión. Maie &amp; Godfroid (2022) además encontraron que limita tanto el procesamiento controlado como el automático.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>Parte 6</h2>
+<p class="h2sub">Medición: una vez al mes, no todos los días</p>
+
+<p>Sin medición esto es fe. Con medición diaria, es una obsesión que abandonarás. Una vez al mes basta y es lo que la literatura puede detectar.</p>
+
+<h3>El protocolo del checkpoint</h3>
+
+<ol>
+  <li><strong>Fija la tarea y no la cambies nunca.</strong> Los efectos de tarea son tan grandes como los de nivel. Elige uno: describir una imagen, narrar tu semana, o argumentar sobre un tema. El mismo tipo, siempre.</li>
+  <li><strong>Graba 2 minutos.</strong> Mínimo 60 segundos de habla; por debajo de 20 s las medidas son inestables.</li>
+  <li><strong>Sin preparación.</strong> Si planificas, mides tu planificación, no tu fluidez.</li>
+  <li><strong>Analiza con el script de Praat</strong> (<em>SyllableNuclei v3</em>, gratis, de Nivja de Jong). Pon el umbral de pausa en <strong>0,25 s</strong> y anótalo; cambiarlo hace incomparables tus propios números. La detección acústica de pausas correlaciona <em>r</em> = 0,88–0,96 con anotación humana. El conteo de sílabas es más flojo (<em>r</em> ≈ 0,56), así que la velocidad tómala como aproximada.</li>
+</ol>
+
+<table>
+  <thead><tr><th>Métrica</th><th>Seguir</th><th>Por qué</th></tr></thead>
+  <tbody>
+    <tr><td>Pausas dentro de la frase / 100 palabras</td><td class="yes">Sí — la principal</td><td>Es tu cuello de botella. Referencia: B2 ≈ 6,4 · C1 ≈ 3,8 · nativo ≈ 2,1</td></tr>
+    <tr><td>Ratio de fonación (% del tiempo hablando)</td><td class="yes">Sí</td><td>Robusta, fácil de extraer, se movió en 2 semanas en de Jong &amp; Perfetti</td></tr>
+    <tr><td>Velocidad (palabras/min)</td><td class="yes">Sí, con reservas</td><td>Referencia: B2 ≈ 118 · C1 ≈ 142 · nativo ≈ 174. Hace techo en B2</td></tr>
+    <tr><td>Duración media de pausa</td><td class="no">No</td><td><strong>61% determinada por tu estilo al hablar español</strong>, no por tu inglés. Perseguirla es perseguir tu propia personalidad</td></tr>
+    <tr><td>"Um" / "uh" y auto-correcciones</td><td class="no">No</td><td>Ver Parte 5</td></tr>
+  </tbody>
+</table>
+
+<p class="tip"><strong>Calibración personal:</strong> graba la misma tarea en español una vez, con el mismo método. El 50–62% de la varianza de tu fluidez en inglés es tu estilo de habla en español. Tus números en español son tu techo real, no los de un nativo de inglés.</p>
+
+<hr>
+
+<h2>Parte 7</h2>
+<p class="h2sub">Qué esperar, honestamente</p>
+
+<table>
+  <thead><tr><th>Plazo</th><th>Qué es razonable</th></tr></thead>
+  <tbody>
+    <tr><td><strong>2–3 semanas</strong></td><td>Cambio medible en ratio de fonación y duración de pausas. Es lo que obtuvo de Jong &amp; Perfetti con 9 entregas. Sensación subjetiva de "arranco más fácil"</td></tr>
+    <tr><td><strong>1–2 meses</strong></td><td>Las pausas a mitad de frase empiezan a bajar sobre temas nuevos (<em>d</em> ≈ 0,5–0,6 en el ensayo aleatorizado, con 12 narraciones)</td></tr>
+    <tr><td><strong>5+ meses</strong></td><td>Kahng: la mejora en pausas de mitad de frase "puede tardar más de 5 meses". Hanzawa observó los cambios de duración de pausa a lo largo de <strong>un año académico</strong></td></tr>
+  </tbody>
+</table>
+
+<p>Dos advertencias contra el falso desánimo. Primera: <strong>la velocidad no va a subir mucho</strong>, y eso no es fallo del método — el entrenamiento por repetición mejora las pausas y consistentemente <em>no</em> mueve la tasa de articulación. Segunda: la precisión gramatical <strong>casi nunca transfiere</strong> a tareas nuevas en estos estudios. Se arregla, pero por la vía del feedback correctivo, más despacio y por estructuras específicas.</p>
+
+<div class="card accent">
+  <p style="margin:0 0 10px"><strong>Sobre tus 60 minutos.</strong> Vale la pena decirlo: la evidencia no respalda 60 minutos diarios de esto. Los estudios que funcionaron usaron dosis pequeñas — 12 narraciones, 3 sesiones, 4,5 horas totales de conversación. Los que fallaron usaron mucho más: 32 horas de pronunciación, 16 semanas de shadowing, 11 semanas de lectura en voz alta.</p>
+  <p style="margin:0">Lo que la evidencia sí respalda es <strong>más días, no sesiones más largas</strong>, y repartir en vez de acumular. Si tienes 60 minutos, la mejor inversión del tiempo extra es la capa de conversación real y la constancia — no estirar el bloque de repetición.</p>
+</div>
+
+<hr>
+
+<h2>Fuentes</h2>
+<p class="h2sub">Los estudios que sostienen cada afirmación</p>
+
+<ul class="src">
+  <li><strong>Transferencia comprensión → producción:</strong> Shintani, Li &amp; Ellis (2013), <em>Language Learning</em> 63 — metaanálisis de 35 experimentos. DeKeyser (1997), <em>SSLA</em> 19, <a href="https://www.cambridge.org/core/services/aop-cambridge-core/content/view/B71581638BF89873F61F03EA1E747E5A/S0272263197002040a.pdf/beyond_explicit_rule_learning.pdf">texto completo</a>.</li>
+  <li><strong>Velocidad de recuperación vs conocimiento:</strong> <a href="https://academic.oup.com/applij/advance-article/doi/10.1093/applin/amaf042/8179356"><em>Applied Linguistics</em> (2025)</a>, N=210.</li>
+  <li><strong>Ubicación de pausas por nivel:</strong> Huang &amp; Gráf (2020), corpus LINDSEI/LOCNEC. Techo de velocidad en B2: <a href="https://www.britishcouncil.org/sites/default/files/yan_et_al_b.pdf">Yan et al., APTIS / British Council</a>.</li>
+  <li><strong>Modelo de producción del habla:</strong> Levelt (1989); <a href="https://coehuman.uodiyala.edu.iq/uploads/Coehuman%20library%20pdf/English%20library%D9%83%D8%AA%D8%A8%20%D8%A7%D9%84%D8%A7%D9%86%D9%83%D9%84%D9%8A%D8%B2%D9%8A/linguistics/Speech%20Production.PDF">Kormos (2006), <em>Speech Production and Second Language Acquisition</em></a>.</li>
+  <li><strong>Repetición de tarea:</strong> <a href="https://research.vu.nl/ws/files/18460570/DeJong_Perfetti_LL_2011_preprint.pdf">de Jong &amp; Perfetti (2011)</a>, <em>Language Learning</em>. <a href="https://www.cambridge.org/core/journals/studies-in-second-language-acquisition/article/effects-of-distributed-practice-on-second-language-fluency-development/4F6787916C198376CAD222934D3B37E4">Kakitani &amp; Kormos, <em>SSLA</em></a> (ensayo aleatorizado, N=116). <a href="https://eric.ed.gov/?id=EJ1134388">Lambert, Kormos &amp; Minn (2017)</a>. <a href="https://www.cambridge.org/core/journals/studies-in-second-language-acquisition/article/massed-task-repetition-is-a-doubleedged-sword-for-fluency-development/D28EDD7E3D0FA15630165538D706E80F">Suzuki &amp; Hanzawa, <em>SSLA</em></a>.</li>
+  <li><strong>Contra la compresión de tiempo:</strong> <a href="https://researchportal.vub.be/en/publications/fluency-development-through-repetition-432-versus-333/">Boers &amp; Deconinck (2013)</a>; <a href="https://eric.ed.gov/?id=EJ1047012">Boers (2014), <em>RELC Journal</em></a>.</li>
+  <li><strong>Feedback correctivo:</strong> <a href="http://kazuyasaito.net/SSLA2010.pdf">Lyster &amp; Saito (2010), <em>SSLA</em> 32</a> — 15 estudios de aula. <a href="https://www.academia.edu/2911659/">Li (2010), <em>Language Learning</em> 60</a> — 33 estudios, N=1.773. <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/modl.12315">Li, Zhu &amp; Ellis (2016)</a> — inmediato vs diferido.</li>
+  <li><strong>Conversación con feedback:</strong> <a href="https://discovery.ucl.ac.uk/10083749/1/SLR2020.pdf">Saito, Suzuki, Oyama &amp; Akiyama (2021), <em>Second Language Research</em></a>.</li>
+  <li><strong>Shadowing (nulo):</strong> <a href="https://hammer.purdue.edu/ndownloader/files/34836438">tesis Purdue</a>, 22 sesiones / 16 semanas. Revisión sistemática: <a href="https://ora.ox.ac.uk/objects/uuid:3104cae1-3a6b-400a-b173-de44384238d2/files/r1z40kv86w">Oxford ORA</a> — 20 de 34 estudios usaron solo tareas controladas.</li>
+  <li><strong>Pronunciación y lectura en voz alta (nulos en habla espontánea):</strong> <a href="https://tesl-ej.org/wordpress/issues/volume25/ej100/ej100a7/">TESL-EJ 25</a>; <a href="https://doaj.org/article/650784de5a2a42f2887c2bc8402c2e96">Rodríguez-Fuentes &amp; Calle-Díaz (2023), <em>Ampersand</em></a>.</li>
+  <li><strong>"Um"/"uh" como palabras:</strong> <a href="http://www.columbia.edu/~rmk7/HC/HC_Readings/Clark_Fox.pdf">Clark &amp; Fox Tree (2002)</a>. Pesos predictivos: <a href="https://eprints.lancs.ac.uk/id/eprint/152963/1/RevisedDraft_MainText_preprint_copy.pdf">Suzuki, Kormos &amp; Uchihara (2021), <em>MLJ</em></a> — 22 estudios, 263 tamaños de efecto.</li>
+  <li><strong>Medición:</strong> <a href="https://sites.google.com/view/uhm-o-meter">UHM-o-meter / SyllableNuclei v3</a> (de Jong &amp; Pacilly, gratis). Validación de herramientas automáticas: <a href="https://ira.lib.polyu.edu.hk/bitstream/10397/118012/1/1-s2.0-S277276612600008X-main.pdf">Lu &amp; Rogers (2026)</a>. Umbral de 250 ms: <a href="https://pure.mpg.de/rest/items/item_1900232_6/component/file_1900231/content">de Jong &amp; Bosker (2013)</a>.</li>
+  <li><strong>El techo del L1:</strong> Peltonen, Götz &amp; Lintunen (2025), <em>SSLA</em>; <a href="https://www.cambridge.org/core/journals/applied-psycholinguistics/article/explaining-second-language-utterance-fluency-contribution-of-cognitive-fluency-and-first-language-utterance-fluency/E150F34F6F6705EEA7B6FE704BE0364C">Kahng (2020), <em>Applied Psycholinguistics</em> 41</a>.</li>
+</ul>
+
+<div class="card" style="margin-top:36px">
+  <p style="margin:0 0 8px"><strong>Nota sobre la calidad de la evidencia.</strong> No todo aquí pesa lo mismo. Lo mejor establecido: la especificidad de destreza (comprensión no transfiere a producción), el efecto del feedback correctivo, y que las pausas a mitad de frase son el marcador que se desarrolla. Lo más flojo: la evidencia <em>causal</em> sobre chunks formulaicos —la correlación es sólida, los estudios de instrucción son de N=5 a N=32 y la propia revista <em>Language Teaching</em> pidió formalmente replicarlos—. No existe ningún estudio de intervención que seleccione a los participantes por tener una brecha comprensión-producción medida; este protocolo compone evidencia de poblaciones generales.</p>
+  <p style="margin:0">Donde la evidencia era débil, el coste de seguir la recomendación también lo es.</p>
+</div>
+
+</div>
+<script>
+(function () {
+  var svg = document.querySelector('svg');
+  if (!svg) return;
+  var box = svg.closest('.chartbox');
+  var tip = document.createElement('div');
+  tip.style.cssText = 'position:absolute;pointer-events:none;opacity:0;transition:opacity .12s;background:var(--surface-1);border:1px solid var(--border-strong);border-radius:8px;padding:7px 11px;font-size:13px;line-height:1.45;box-shadow:0 4px 14px rgba(0,0,0,.14);white-space:nowrap;z-index:5;color:var(--text-primary)';
+  box.appendChild(tip);
+  var data = [
+    {cx:44,  cy:39.9,  t:'B2 · dentro de la frase: 6,42'},
+    {cx:287, cy:130.4, t:'C1 · dentro de la frase: 3,78'},
+    {cx:530, cy:189.4, t:'Nativo · dentro de la frase: 2,06'},
+    {cx:44,  cy:61.1,  t:'B2 · límite de frase: 5,80'},
+    {cx:287, cy:55.7,  t:'C1 · límite de frase: 5,96'},
+    {cx:530, cy:100.9, t:'Nativo · límite de frase: 4,64'}
+  ];
+  var circles = svg.querySelectorAll('circle');
+  circles.forEach(function (c, i) {
+    var d = data.find(function (p) {
+      return Math.abs(p.cx - +c.getAttribute('cx')) < 1 && Math.abs(p.cy - +c.getAttribute('cy')) < 1;
+    });
+    if (!d) return;
+    var hit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    hit.setAttribute('cx', d.cx); hit.setAttribute('cy', d.cy); hit.setAttribute('r', 16);
+    hit.setAttribute('fill', 'transparent'); hit.style.cursor = 'crosshair';
+    hit.addEventListener('mouseenter', function () {
+      var r = svg.getBoundingClientRect(), br = box.getBoundingClientRect();
+      var sx = r.width / 640;
+      tip.textContent = d.t;
+      tip.style.opacity = '1';
+      tip.style.left = Math.min(r.left - br.left + d.cx * sx + 14, br.width - 210) + 'px';
+      tip.style.top  = (r.top - br.top + d.cy * sx - 14) + 'px';
+    });
+    hit.addEventListener('mouseleave', function () { tip.style.opacity = '0'; });
+    svg.appendChild(hit);
+  });
+})();
+</script>
+</body>
+</html>

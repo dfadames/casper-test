@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sesión diaria de inglés hablado</title>
+<style>
+  :root{color-scheme:light dark;
+    --surface-0:#f7f6f3;--surface-1:#fcfcfb;--surface-2:#f0efec;--border:#e0dfd9;--border-strong:#c9c7bf;
+    --text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#77756e;
+    --series-1:#2a78d6;--series-2:#eb6834;--accent-bg:#eef4fd;--warn-bg:#fdf1ec;}
+  @media (prefers-color-scheme:dark){:root{
+    --surface-0:#131312;--surface-1:#1a1a19;--surface-2:#232322;--border:#333331;--border-strong:#4a4a47;
+    --text-primary:#fff;--text-secondary:#c3c2b7;--text-muted:#96958c;
+    --series-1:#3987e5;--series-2:#d95926;--accent-bg:#16233a;--warn-bg:#2e1e17;}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--surface-0);color:var(--text-primary);
+    font:16px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:800px;margin:0 auto;padding:36px 20px 90px}
+  header{border-bottom:1px solid var(--border);padding-bottom:22px;margin-bottom:26px}
+  h1{font-size:25px;margin:0 0 6px;letter-spacing:-0.02em}
+  .sub{color:var(--text-secondary);font-size:15px;margin:0}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--text-muted);margin:44px 0 6px;font-weight:600}
+  h2+.h2sub{font-size:21px;line-height:1.3;margin:0 0 16px;letter-spacing:-.015em;font-weight:600}
+  h3{font-size:16px;margin:24px 0 8px}
+  p{margin:0 0 12px}
+  a{color:var(--series-1)}
+  ul,ol{margin:0 0 14px;padding-left:22px} li{margin-bottom:6px}
+  code{font:13px ui-monospace,Menlo,Consolas,monospace;background:var(--surface-2);padding:1.5px 5px;border-radius:4px}
+  .card{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin:16px 0}
+  .card.accent{background:var(--accent-bg);border-color:transparent}
+  .card.warn{background:var(--warn-bg);border-color:transparent}
+  /* day stepper */
+  .stepper{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .stepper button{font:inherit;font-size:15px;background:var(--surface-1);color:var(--text-primary);
+    border:1px solid var(--border-strong);border-radius:9px;padding:7px 14px;cursor:pointer}
+  .stepper button:hover{background:var(--surface-2)}
+  .stepper input{font:inherit;font-size:16px;width:62px;text-align:center;padding:7px 4px;
+    background:var(--surface-1);color:var(--text-primary);border:1px solid var(--border-strong);border-radius:9px}
+  .stepper label{font-size:14px;color:var(--text-secondary)}
+  /* today panel */
+  .today{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:640px){.today{grid-template-columns:1.4fr 1fr}}
+  .tile{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .tile .lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:8px}
+  .tile .topic{font-size:18px;line-height:1.4;font-weight:600;letter-spacing:-.01em}
+  .tile .reach{font-size:13.5px;color:var(--text-secondary);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+  .hintlab{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin-bottom:4px}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.05em;font-weight:650;padding:2.5px 7px;border-radius:5px;
+    background:var(--surface-2);color:var(--text-secondary);margin-bottom:8px}
+  /* steps */
+  .step{display:grid;grid-template-columns:52px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
+  .step:last-child{border-bottom:none}
+  .step .badge{font-size:11.5px;font-weight:650;color:var(--text-secondary);background:var(--surface-2);
+    border-radius:8px;height:28px;display:flex;align-items:center;justify-content:center}
+  .step h4{margin:2px 0 5px;font-size:16px}
+  .step p{margin:0 0 6px;font-size:14.5px;color:var(--text-secondary)}
+  /* timer */
+  .timer{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:20px;margin:14px 0;text-align:center}
+  .clock{font:650 54px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .phase{font-size:14px;color:var(--text-secondary);margin-top:8px;min-height:20px}
+  .dots{display:flex;gap:7px;justify-content:center;margin:14px 0 4px}
+  .dot{width:26px;height:5px;border-radius:3px;background:var(--border)}
+  .dot.on{background:var(--series-1)}
+  .dot.done{background:var(--border-strong)}
+  .tbtns{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .tbtns button{font:inherit;font-size:15px;padding:9px 20px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--border-strong);background:var(--surface-1);color:var(--text-primary)}
+  .tbtns button.primary{background:var(--series-1);border-color:var(--series-1);color:#fff;font-weight:600}
+  .tbtns button:hover{opacity:.88}
+  /* drill list */
+  .drill{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:14px 0;background:var(--surface-1)}
+  .drill-head{padding:11px 16px;background:var(--surface-2);font-size:13px;font-weight:650;
+    display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .drill-head .cnt{font-weight:400;color:var(--text-muted);font-size:12.5px}
+  .row{padding:12px 16px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr;gap:5px}
+  .row .es{font-size:15px}
+  .row .en{font-size:15px;color:var(--text-muted);filter:blur(4.5px);cursor:pointer;transition:filter .12s;
+    -webkit-user-select:none;user-select:none}
+  .row .en.show{filter:none;color:var(--series-1);-webkit-user-select:text;user-select:text}
+  .row .nt{font-size:12.5px;color:var(--text-muted);border-left:2px solid var(--border-strong);padding-left:9px;margin-top:2px}
+  .revealall{font:inherit;font-size:12.5px;background:none;border:1px solid var(--border-strong);
+    color:var(--text-secondary);border-radius:7px;padding:3px 10px;cursor:pointer}
+  /* copy blocks */
+  pre{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:15px 17px;
+    overflow-x:auto;margin:10px 0;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+  textarea{width:100%;min-height:150px;background:var(--surface-1);color:var(--text-primary);
+    border:1px solid var(--border);border-radius:10px;padding:14px;font:inherit;font-size:14.5px;resize:vertical}
+  .copybtn{font:inherit;font-size:13.5px;padding:7px 15px;border-radius:8px;cursor:pointer;
+    border:1px solid var(--border-strong);background:var(--surface-1);color:var(--text-primary)}
+  .copybtn:hover{background:var(--surface-2)}
+  details{margin:10px 0 16px}
+  summary{cursor:pointer;font-size:14px;color:var(--text-secondary)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;margin:8px 0 14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600}
+  hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+  .tip{border-left:3px solid var(--border-strong);padding-left:15px;margin:14px 0;color:var(--text-secondary);font-size:14.5px}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Sesión diaria de inglés hablado</h1>
+  <p class="sub">Todo preparado: el tema del día, las frases a drillear, el cronómetro de las 5 rondas y el prompt de corrección. Elige el día y sigue los pasos.</p>
+  <div class="stepper">
+    <button id="prev" aria-label="Día anterior">←</button>
+    <label for="day">Día</label>
+    <input id="day" type="number" min="0" max="30" value="1" aria-label="Número de día del programa">
+    <button id="next" aria-label="Día siguiente">→</button>
+    <span class="stepper" style="margin:0"><button id="go0">Ir al Día 0 (arranque)</button></span>
+  </div>
+</header>
+
+<!-- ============ DÍA 0 ============ -->
+<div id="day0" class="hide">
+  <h2>Día 0</h2>
+  <p class="h2sub">Arranque: montar la medición antes de entrenar</p>
+  <p>Hoy no entrenas. Hoy tomas la foto inicial. Sin esto no vas a saber si el programa funciona, y en dos meses vas a estar adivinando.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">1 · Graba tu línea base (5 min)</h3>
+    <p>Abre la grabadora de voz del teléfono. Lee el prompt de abajo, e inmediatamente ponte a hablar. <strong>Sin preparar nada.</strong> Si planificas, mides tu planificación y no tu fluidez. Habla 2 minutos aunque se sienta terrible. Especialmente si se siente terrible.</p>
+    <div class="card accent" style="margin:12px 0 6px">
+      <p style="margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600">Tarea fija del checkpoint — no la cambies nunca</p>
+      <p style="margin:0;font-size:17px;font-weight:600;line-height:1.45">Tell me about your last week. Go through it in order, and include one thing that went wrong and what you did about it.</p>
+    </div>
+    <p class="tip">Cada mes usas esta misma consigna con una semana distinta. Mismo tipo de tarea, contenido nuevo: así controlas el efecto de tarea sin memorizar la respuesta. Los efectos de tarea son tan grandes como los de nivel — por eso se fija.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">2 · Graba la calibración en español (3 min)</h3>
+    <p>La misma consigna, en español, con la misma grabadora. Guárdala como <code>baseline-ES</code>.</p>
+    <p style="margin-bottom:0">Entre el 50% y el 62% de la varianza de tu fluidez en inglés es tu estilo al hablar español. Tus números en español son tu techo real — no los de un nativo de inglés. Sin esta grabación vas a perseguir una meta que no te corresponde.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">3 · Monta las herramientas (20 min, una sola vez)</h3>
+    <table>
+      <thead><tr><th style="width:34%">Herramienta</th><th>Qué hacer</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Praat</strong><br><span style="font-size:13px;color:var(--text-muted)">medición</span></td>
+            <td>Descarga de <a href="https://www.fon.hum.uva.nl/praat/">fon.hum.uva.nl/praat</a> (Windows, Mac y Linux; es gratis y pesa poco). Luego baja el script <em>SyllableNuclei v3</em> de <a href="https://sites.google.com/view/uhm-o-meter">UHM-o-meter</a>. <strong>Cambia el parámetro de pausa mínima de 0,3 a 0,25 s</strong> y no lo vuelvas a tocar: si lo cambias después, tus propios números dejan de ser comparables entre sí.</td></tr>
+        <tr><td><strong>Transcripción</strong><br><span style="font-size:13px;color:var(--text-muted)">para el paso 3 diario</span></td>
+            <td>La ruta más simple: dictarle la grabación a la app de notas, o subir el audio a la IA si tu cliente lo acepta. La ruta buena: <code>pip install faster-whisper</code> y transcribir local, gratis y sin límite. La ruta sin instalar nada: la capa gratuita de AssemblyAI (185 h de audio pregrabado).</td></tr>
+        <tr><td><strong>Grabadora</strong></td>
+            <td>La del teléfono sirve. Crea una carpeta por mes. Nombra los archivos <code>d01-r1</code>, <code>d01-r5</code> — vas a querer comparar la ronda 1 con la 5 más adelante.</td></tr>
+      </tbody>
+    </table>
+    <p class="tip">Si hoy no quieres instalar nada: graba igual las dos líneas base. La medición puedes montarla la semana que viene. Lo que no se recupera es la grabación de hoy.</p>
+  </div>
+
+  <div class="card warn">
+    <p style="margin:0"><strong>No escuches todavía tu grabación en inglés.</strong> Guárdala. La vas a oír al lado de la del mes 1, y esa comparación vale mucho más que el desánimo de hoy.</p>
+  </div>
+</div>
+
+<!-- ============ DÍAS 1–30 ============ -->
+<div id="dayN">
+  <h2 id="dayLabel">Día 1</h2>
+  <p class="h2sub">Hoy hablas de esto</p>
+
+  <div class="today">
+    <div class="tile">
+      <div class="lab">Tema del bloque de repetición</div>
+      <div id="topicTag" class="tag">ARGUMENTATIVA</div>
+      <div class="topic" id="topicText">—</div>
+      <div class="reach" id="topicReach">—</div>
+    </div>
+    <div class="tile">
+      <div class="lab">Drill de hoy</div>
+      <div id="drillSummary" style="font-size:14.5px;line-height:1.6"></div>
+    </div>
+  </div>
+
+  <h2>La sesión</h2>
+  <p class="h2sub">Cinco pasos, unos 55 minutos</p>
+
+  <div class="card" style="padding:4px 22px">
+
+    <div class="step">
+      <div class="badge">10 min</div>
+      <div>
+        <h4>1 · Drill de producción</h4>
+        <p>Lees la frase en español y <strong>dices la inglesa completa en voz alta</strong> antes de destapar. En voz alta de verdad, no mentalmente — si lo haces en la cabeza estás practicando comprensión otra vez. Toca la línea borrosa para revelar.</p>
+        <p style="margin-bottom:0">Si fallas, di la frase correcta dos veces y sigue. No te detengas a analizarla.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="badge">20 min</div>
+      <div>
+        <h4>2 · Bloque de repetición <span style="font-weight:400;color:var(--text-muted);font-size:14px">— el núcleo</span></h4>
+        <p>El mismo tema, <strong>5 rondas de 2 minutos</strong>, sin notas y sin acortar el reloj. Graba la ronda 1 y la ronda 5. Si te quedas sin qué decir antes de los 2 minutos, no pares: repite el punto anterior con otras palabras. El silencio no cuenta como ronda.</p>
+        <p style="margin-bottom:0">Es el único ejercicio con transferencia demostrada a temas nuevos. Si un día solo alcanzas para una cosa, es esta.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="badge">15 min</div>
+      <div>
+        <h4>3 · Corrección</h4>
+        <p>Transcribe la ronda 5 y pásasela a la IA con el prompt de más abajo. Cada corrección termina contigo <strong>diciendo la frase completa otra vez, en voz alta y bien</strong>. Ese acto es el ejercicio entero; leer la corrección no sirve.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="badge">5 min</div>
+      <div>
+        <h4>4 · Cosecha de huecos</h4>
+        <p>Anota en español lo que quisiste decir y no pudiste. Pídele a la IA que te lo convierta en chunks. Ese es tu material de mañana — y a partir del día 13, es el único material.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="badge">resto</div>
+      <div>
+        <h4>5 · Input libre</h4>
+        <p style="margin-bottom:0">Series, podcasts, lo que disfrutes. Mantiene la base. No entrena tu producción, y por eso va al final y sin culpa.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>Paso 2</h2>
+  <p class="h2sub">Cronómetro de las 5 rondas</p>
+  <div class="timer">
+    <div class="clock" id="clock">2:00</div>
+    <div class="phase" id="phase">Ronda 1 de 5 · listo para empezar</div>
+    <div class="dots" id="dots"></div>
+    <div class="tbtns">
+      <button class="primary" id="tstart">Empezar</button>
+      <button id="tskip">Saltar a la siguiente</button>
+      <button id="treset">Reiniciar</button>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin:14px 0 0">2:00 hablando · 0:30 de respiro entre rondas · un pitido marca cada cambio. Deja la pestaña abierta.</p>
+  </div>
+
+  <h2>Paso 1</h2>
+  <p class="h2sub">Tus frases de hoy</p>
+  <div id="drills"></div>
+  <div id="ownMaterial" class="card accent hide">
+    <p style="margin:0 0 8px"><strong>A partir de hoy el material nuevo es tuyo.</strong> El banco semilla ya cumplió: te dio 120 frases mientras acumulabas tus propios huecos.</p>
+    <p style="margin:0">Toma los 10 chunks de tu log de huecos más reciente y drilléalos igual. Los repasos del banco semilla siguen apareciendo abajo cuando corresponda.</p>
+  </div>
+
+  <h2>Paso 3</h2>
+  <p class="h2sub">Prompt de corrección</p>
+  <p>Pégalo al inicio de una conversación nueva. Corrige en modo <em>prompt</em> —te señala dónde está el error y te hace reintentar— en vez de <em>recast</em>, que es darte la versión correcta. La diferencia medida es <em>d</em> = 0,83 contra 0,53.</p>
+  <pre id="aiprompt">You are my English speaking coach. I am a Spanish speaker from Colombia with strong
+receptive English and weak spoken production. My specific problem is mid-clause
+pausing: I stall in the middle of sentences while retrieving words and structures.
+
+Rules for how you correct me — follow these strictly:
+
+1. NEVER give me the corrected version first. Point to the location and the type of
+   problem, then STOP and let me retry.
+   Say: "Second sentence, the verb phrase — try again."
+   NOT:  "You should say 'I have been working'."
+2. Only after two failed attempts, give me the answer.
+3. After any correction, make me say the WHOLE sentence again, correctly, out loud.
+   Do not move on until I do.
+4. Correct at most 3 things per turn. Pick the ones that most affect
+   comprehensibility, not the most technically wrong ones.
+5. Ignore filled pauses (um, uh), minor repetitions and self-corrections completely.
+   Native speakers do those at about 6 per minute. Do not mention them.
+6. Do not praise me for effort. Tell me plainly what is working and what is not.
+7. At the END of the session, give me exactly 10 items: things I TRIED to say but
+   couldn't. Format each as:
+      Spanish sentence I was reaching for  |  natural English sentence  |  the chunk
+   Use fixed multiword chunks of 3-7 words, not single words, not slot-and-frame
+   patterns. This is my study material for the next session.
+
+I will paste a transcript of myself speaking, or speak to you directly.
+Start by asking me for today's topic.</pre>
+  <p><button class="copybtn" data-copy="aiprompt">Copiar el prompt</button></p>
+
+  <h2>Paso 4</h2>
+  <p class="h2sub">Log de huecos</p>
+  <p>Escribe en español lo que no te salió, mientras lo tienes fresco. Al terminar, cópialo y pídele a la IA: <em>"convert these into English chunks using the format from rule 7."</em></p>
+  <textarea id="gaplog" placeholder="Quise decir «me terminó saliendo peor de lo que pensaba» y me trabé…&#10;No supe cómo decir «de todas formas ya estaba hecho»…&#10;Dije «I have 30 years» otra vez…"></textarea>
+  <p><button class="copybtn" data-copy="gaplog">Copiar el log</button></p>
+</div>
+
+<hr>
+
+<h2>Referencia</h2>
+<p class="h2sub">El banco completo y cómo está montado</p>
+
+<details>
+  <summary>Ver los 120 chunks semilla, por set</summary>
+  <div id="fullbank" style="margin-top:14px"></div>
+</details>
+
+<details>
+  <summary>Por qué el calendario es así</summary>
+  <div style="margin-top:12px">
+    <p><strong>10 frases nuevas por día, 12 días.</strong> Es la dosis que la evidencia sostiene: en el estudio de Yu, Boers y Tremblay, 10 ítems en 49 minutos ya mostraban ventaja inmediata, y la ventaja se había disipado en buena parte a las 2 semanas sin re-espaciado. De ahí lo que sigue.</p>
+    <p><strong>Repasos a +2, +6 y +15 días.</strong> Espaciado corto y expansivo. Para conocimiento declarativo el espaciado largo rinde más, pero para destreza <em>procedimental</em> oral la evidencia va al revés: Suzuki (2017) encontró 3 días mejor que 7, y Li &amp; DeKeyser confirmaron que lo procedimental prefiere intervalos cortos. El repaso a +15 existe para atrapar la caída de las 2 semanas.</p>
+    <p><strong>El banco se acaba el día 12 a propósito.</strong> Es un arranque, no el programa. Para entonces llevas 12 sesiones de cosecha de huecos y tienes material propio, que es estrictamente mejor: sale de tus fallos reales de recuperación, no de una lista general.</p>
+    <p><strong>El orden de las categorías no es alfabético ni temático.</strong> Va por fuerza de la evidencia. Primero ganar tiempo y matizar opinión —Dörnyei (1995) es el único estudio que aisló esa categoría experimentalmente, y Brown et al. (2023) mostró en un diseño de <em>matched guise</em> con 231 oyentes que insertar marcadores pragmáticos sube la fluidez percibida—. Después los bundles de modalidad y vaguedad, que son los más frecuentes en habla real. Los verbos con partícula entran por no-transparencia: un hispanohablante no los construye traduciendo. Y las categorías retóricas formales van al final porque su evidencia es un estudio de n=5 sin grupo control.</p>
+    <p style="margin-bottom:0"><strong>Casi todas las frases son fijas, no de hueco variable.</strong> Un estudio de 2025 sobre 120 narraciones encontró que solo la proporción de secuencias <em>fijas</em> se relaciona con la velocidad; las de hueco abierto a veces no ayudan y pueden empeorar la fluidez de reparación.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Reglas para no romper el protocolo</summary>
+  <ul style="margin-top:12px">
+    <li><strong>No acortes el reloj entre rondas.</strong> El 4/3/2 clásico lo hace; comparado contra tiempo constante, el tiempo constante rindió igual o mejor y la presión temporal degrada la precisión.</li>
+    <li><strong>No hagas las 5 rondas de un tema y luego otras 5 de otro.</strong> Repetición masiva reduce pausas pero enlentece la articulación (<em>g</em> = −0,88 a −1,73) y dispara la repetición literal.</li>
+    <li><strong>No leas notas durante las rondas.</strong> Convierte el ejercicio en lectura en voz alta, que tiene evidencia nula sobre fluidez espontánea.</li>
+    <li><strong>No persigas los "um".</strong> Los nativos hacen ~6,3 por minuto. Correlacionan −0,15 con fluidez percibida. Suben con la ansiedad, no con la falta de nivel.</li>
+    <li><strong>No midas todos los días.</strong> Una vez al mes. Medir a diario es ruido y garantiza que abandones.</li>
+    <li><strong>Saltarte un día no rompe nada</strong> — simplemente avanza el contador cuando retomes. Lo que rompe el programa es hacer sesiones de tres horas el domingo.</li>
+  </ul>
+</details>
+</div>
+<script>
+// Banco de chunks — 12 sets de 10. Orden por prioridad de evidencia:
+// ganar tiempo + stance primero (Dörnyei 1995, Brown et al. 2023),
+// luego bundles de modalidad y vaguedad (los más frecuentes en habla real),
+// luego verbos con partícula (no-transparencia para hispanohablante),
+// y al final las categorías retóricas formales (evidencia n=5).
+// Sesgo hacia formas FIJAS (JPR 2025: solo las fijas se ligan a velocidad).
+const SETS = [
+{n:1, title:"Ganar tiempo y sostener el turno", items:[
+ {c:"the thing is", es:"El problema es que no me avisaron a tiempo.", en:"The thing is, they didn't tell me in time."},
+ {c:"it depends on", es:"Depende de cuánta gente venga.", en:"It depends on how many people show up.", note:"depends ON. Nunca 'depends of'."},
+ {c:"let me think for a second", es:"Déjame pensarlo un segundo.", en:"Let me think for a second."},
+ {c:"that's a good question", es:"Buena pregunta, nunca lo había pensado.", en:"That's a good question — I'd never thought about it."},
+ {c:"what I'm trying to say is", es:"Lo que quiero decir es que no vale la pena.", en:"What I'm trying to say is it's not worth it."},
+ {c:"let me put it this way", es:"Te lo pongo así: nadie quedó contento.", en:"Let me put it this way: nobody walked away happy."},
+ {c:"I was going to say", es:"Iba a decir que sí, pero mejor no.", en:"I was going to say yes, but I'd rather not."},
+ {c:"you know what I mean", es:"Es raro, ¿me entiendes?", en:"It's weird, you know what I mean?"},
+ {c:"as a matter of fact", es:"De hecho, ya lo había hecho antes.", en:"As a matter of fact, I'd already done it before."},
+ {c:"hang on a second", es:"Espérate un segundo, déjame revisar.", en:"Hang on a second, let me check."}]},
+{n:2, title:"Opinión y grados de certeza", items:[
+ {c:"I don't think it's", es:"No creo que sea buena idea.", en:"I don't think it's a good idea.", note:"El inglés niega el verbo principal: 'I don't think it is', no 'I think it isn't'."},
+ {c:"as far as I know", es:"Que yo sepa, todavía no han decidido.", en:"As far as I know, they haven't decided yet."},
+ {c:"to be honest", es:"Sinceramente, no me convenció.", en:"To be honest, it didn't convince me."},
+ {c:"I'd say", es:"Yo diría que unas tres semanas.", en:"I'd say about three weeks."},
+ {c:"it seems to me that", es:"Me parece que se está complicando solo.", en:"It seems to me that he's making it harder than it is."},
+ {c:"I have no idea", es:"No tengo ni idea de dónde quedó.", en:"I have no idea where it ended up."},
+ {c:"I'm not so sure about that", es:"No estoy tan seguro de eso.", en:"I'm not so sure about that."},
+ {c:"as far as I'm concerned", es:"Por mi parte, el tema está cerrado.", en:"As far as I'm concerned, the matter is closed."},
+ {c:"there's no doubt that", es:"No hay duda de que funcionó.", en:"There's no doubt that it worked."},
+ {c:"I tend to think", es:"Yo tiendo a pensar que es al revés.", en:"I tend to think it's the other way around."}]},
+{n:3, title:"Reformular y arreglar sobre la marcha", items:[
+ {c:"what I mean is", es:"Lo que quiero decir es otra cosa.", en:"What I mean is something different."},
+ {c:"in other words", es:"En otras palabras, no van a pagar.", en:"In other words, they're not going to pay."},
+ {c:"does that make sense", es:"¿Se entiende lo que digo?", en:"Does that make sense?"},
+ {c:"it has to do with", es:"Tiene que ver con cómo lo plantearon.", en:"It has to do with the way they framed it."},
+ {c:"or rather", es:"Fue en marzo, o más bien a finales de febrero.", en:"It was in March — or rather, late February."},
+ {c:"the point I'm making is", es:"Lo que estoy diciendo es que nadie revisó.", en:"The point I'm making is that nobody checked."},
+ {c:"to put it another way", es:"Dicho de otra manera, salió más caro.", en:"To put it another way, it ended up costing more."},
+ {c:"how can I say this", es:"¿Cómo lo digo? No fue exactamente un error.", en:"How can I say this — it wasn't exactly a mistake."},
+ {c:"I don't know how to explain it", es:"No sé cómo explicarlo, pero se sentía mal.", en:"I don't know how to explain it, but it felt wrong."},
+ {c:"if you know what I mean", es:"Es un poco incómodo, si me entiendes.", en:"It's a little awkward, if you know what I mean."}]},
+{n:4, title:"Obligación y necesidad", items:[
+ {c:"you don't have to", es:"No tienes que venir si no quieres.", en:"You don't have to come if you don't want to.", note:"'You mustn't' = está prohibido. 'You don't have to' = no es obligatorio. No son lo mismo."},
+ {c:"all you have to do is", es:"Lo único que tienes que hacer es avisarme.", en:"All you have to do is let me know."},
+ {c:"I'm supposed to", es:"Se supone que debo entregarlo hoy.", en:"I'm supposed to hand it in today."},
+ {c:"I'd better", es:"Mejor me voy ya.", en:"I'd better get going."},
+ {c:"I've got to", es:"Tengo que salir en diez minutos.", en:"I've got to leave in ten minutes."},
+ {c:"I might as well", es:"Ya que estoy aquí, aprovecho y lo hago.", en:"Since I'm here, I might as well do it."},
+ {c:"you ought to", es:"Deberías decírselo tú mismo.", en:"You ought to tell him yourself."},
+ {c:"I need to get", es:"Necesito conseguir eso antes del viernes.", en:"I need to get that before Friday."},
+ {c:"there's no need to", es:"No hace falta que te disculpes.", en:"There's no need to apologize."},
+ {c:"it was meant to be", es:"Se suponía que esto iba a ser rápido.", en:"This was meant to be quick."}]},
+{n:5, title:"Hábito, capacidad e intención — trampas de interferencia", items:[
+ {c:"I used to", es:"Antes trabajaba de noche.", en:"I used to work nights.", note:"Hábito pasado que ya no ocurre. Siempre + infinitivo."},
+ {c:"I'm used to it", es:"Ya estoy acostumbrado.", en:"I'm used to it by now.", note:"El par trampa: 'used to + infinitivo' (hábito pasado) vs 'be used to + -ing' (estar acostumbrado)."},
+ {c:"I'm going to", es:"Voy a intentarlo otra vez.", en:"I'm going to give it another shot."},
+ {c:"what we're going to do is", es:"Lo que vamos a hacer es empezar por lo fácil.", en:"What we're going to do is start with the easy part."},
+ {c:"I'm about to", es:"Estoy a punto de terminar.", en:"I'm about to finish."},
+ {c:"I wasn't able to", es:"No pude llegar a tiempo.", en:"I wasn't able to get there on time."},
+ {c:"it's likely to", es:"Es probable que llueva.", en:"It's likely to rain."},
+ {c:"he's bound to", es:"Tarde o temprano se va a dar cuenta.", en:"He's bound to find out sooner or later."},
+ {c:"I managed to", es:"Logré arreglarlo al final.", en:"I managed to fix it in the end.", note:"'Manage to' = lograr algo con esfuerzo. No es 'manejar'."},
+ {c:"I can't afford to", es:"No me puedo dar el lujo de perder otro día.", en:"I can't afford to lose another day."}]},
+{n:6, title:"Vaguedad y aproximación", items:[
+ {c:"or something like that", es:"Eran como veinte personas, o algo así.", en:"There were about twenty people, or something like that."},
+ {c:"and things like that", es:"Traje cuadernos, lápices y cosas así.", en:"I brought notebooks, pencils and things like that."},
+ {c:"that sort of thing", es:"Reuniones, informes, ese tipo de cosas.", en:"Meetings, reports, that sort of thing."},
+ {c:"kind of", es:"Estuvo como raro.", en:"It was kind of weird."},
+ {c:"a bit of a", es:"Fue un poco un desastre.", en:"It was a bit of a mess."},
+ {c:"more or less", es:"Más o menos lo mismo.", en:"More or less the same thing."},
+ {c:"an hour or so", es:"Como una hora.", en:"An hour or so."},
+ {c:"a couple of", es:"Un par de días.", en:"A couple of days."},
+ {c:"or whatever", es:"Llámalo error, descuido, o lo que sea.", en:"Call it a mistake, an oversight, or whatever."},
+ {c:"quite a lot of", es:"Bastante gente se quejó.", en:"Quite a lot of people complained."}]},
+{n:7, title:"Verbos con partícula (1)", items:[
+ {c:"I ended up", es:"Al final terminé quedándome.", en:"I ended up staying.", note:"Siempre + -ing."},
+ {c:"I came up with", es:"Se me ocurrió una idea mejor.", en:"I came up with a better idea."},
+ {c:"it turned out", es:"Resultó que estaba equivocado.", en:"It turned out I was wrong."},
+ {c:"I came across", es:"Me encontré con esto por casualidad.", en:"I came across this by accident."},
+ {c:"it worked out", es:"Al final todo salió bien.", en:"It all worked out in the end."},
+ {c:"I sorted it out", es:"Ya lo solucioné.", en:"I sorted it out."},
+ {c:"to figure out", es:"Todavía no entiendo cómo funciona.", en:"I still haven't figured out how it works."},
+ {c:"I found out", es:"Me enteré ayer.", en:"I found out yesterday."},
+ {c:"someone pointed out", es:"Alguien señaló que faltaba una parte.", en:"Someone pointed out that a part was missing."},
+ {c:"we ran out of", es:"Se nos acabó el tiempo.", en:"We ran out of time."}]},
+{n:8, title:"Verbos con partícula (2)", items:[
+ {c:"let's get on with it", es:"Sigamos con lo nuestro.", en:"Let's get on with it."},
+ {c:"to put up with", es:"No pienso aguantar eso.", en:"I'm not going to put up with that."},
+ {c:"he got away with it", es:"Se salió con la suya.", en:"He got away with it."},
+ {c:"to catch up", es:"Después nos ponemos al día.", en:"Let's catch up later."},
+ {c:"to keep up with", es:"Me cuesta seguirle el ritmo.", en:"I struggle to keep up with him."},
+ {c:"I'll look into it", es:"Lo voy a averiguar.", en:"I'll look into it."},
+ {c:"looking forward to", es:"Tengo ganas de que llegue.", en:"I'm looking forward to it.", note:"Seguido de -ing, no de infinitivo: 'looking forward to seeing you'."},
+ {c:"I'll take care of it", es:"Yo me encargo.", en:"I'll take care of it."},
+ {c:"to get rid of", es:"Hay que deshacerse de eso.", en:"We need to get rid of that."},
+ {c:"to make up my mind", es:"Todavía no me decido.", en:"I haven't made up my mind yet."}]},
+{n:9, title:"Acuerdo, desacuerdo y suavizar", items:[
+ {c:"I see what you mean", es:"Ya veo por dónde vas.", en:"I see what you mean."},
+ {c:"you've got a point", es:"Tienes razón en eso.", en:"You've got a point there."},
+ {c:"I take your point, but", es:"Te entiendo, pero no es tan simple.", en:"I take your point, but it's not that simple."},
+ {c:"fair enough", es:"Está bien, lo acepto.", en:"Fair enough."},
+ {c:"that's not really the point", es:"No es eso lo que estoy diciendo.", en:"That's not really the point."},
+ {c:"I couldn't agree more", es:"Totalmente de acuerdo.", en:"I couldn't agree more."},
+ {c:"to a certain extent", es:"Hasta cierto punto, sí.", en:"To a certain extent, yes."},
+ {c:"I'd rather", es:"Prefiero hacerlo mañana.", en:"I'd rather do it tomorrow."},
+ {c:"would you mind", es:"¿Te importaría repetirlo?", en:"Would you mind saying that again?", note:"Seguido de -ing. Y responder 'no' significa que sí aceptas."},
+ {c:"never mind", es:"Déjalo así, no importa.", en:"Never mind, it doesn't matter."}]},
+{n:10, title:"Manejo del tema", items:[
+ {c:"when it comes to", es:"En cuanto a plata, no hay problema.", en:"When it comes to money, there's no problem."},
+ {c:"as I was saying", es:"Como te decía, no alcanzó el tiempo.", en:"As I was saying, there wasn't enough time."},
+ {c:"going back to what you said", es:"Volviendo a lo que dijiste antes...", en:"Going back to what you said earlier…"},
+ {c:"by the way", es:"Por cierto, ya llegó.", en:"By the way, it already arrived."},
+ {c:"that reminds me", es:"Eso me recuerda algo.", en:"That reminds me of something."},
+ {c:"the thing about it is", es:"Lo de este trabajo es que nunca sabes.", en:"The thing about this job is you never know."},
+ {c:"at the end of the day", es:"A fin de cuentas, es decisión tuya.", en:"At the end of the day, it's your call."},
+ {c:"to cut a long story short", es:"Para no hacerte el cuento largo, no funcionó.", en:"To cut a long story short, it didn't work."},
+ {c:"speaking of which", es:"Hablando de eso, ¿ya le avisaste?", en:"Speaking of which, did you tell her?"},
+ {c:"let's move on to", es:"Pasemos al siguiente punto.", en:"Let's move on to the next point."}]},
+{n:11, title:"Contraste y matiz", items:[
+ {c:"on the other hand", es:"Por otro lado, sale más barato.", en:"On the other hand, it's cheaper."},
+ {c:"even though", es:"Aunque no le gustaba, lo hizo.", en:"Even though he didn't like it, he did it."},
+ {c:"apart from that", es:"Aparte de eso, todo bien.", en:"Apart from that, everything's fine."},
+ {c:"rather than", es:"Prefiero esperar antes que arriesgarme.", en:"I'd rather wait than take the risk."},
+ {c:"instead of", es:"Fuimos el sábado en vez del viernes.", en:"We went on Saturday instead of Friday."},
+ {c:"but then again", es:"Aunque, pensándolo bien, tampoco importa tanto.", en:"But then again, it doesn't really matter that much."},
+ {c:"in a way", es:"En cierto modo, tenía razón.", en:"In a way, he was right."},
+ {c:"let alone", es:"Ni siquiera terminé el primero, mucho menos el segundo.", en:"I didn't even finish the first one, let alone the second.", note:"Refuerza una negación previa. No tiene equivalente directo en español."},
+ {c:"as opposed to", es:"Digo prestado, no regalado.", en:"I mean borrowed, as opposed to given."},
+ {c:"not only… but", es:"No solo llegó tarde, sino que ni avisó.", en:"Not only did he show up late, but he didn't even call.", note:"'Not only' al inicio invierte el orden: 'did he show up'."}]},
+{n:12, title:"Tiempo, secuencia y cierre", items:[
+ {c:"the other day", es:"El otro día me lo encontré.", en:"I ran into him the other day."},
+ {c:"by the time", es:"Para cuando llegué, ya se habían ido.", en:"By the time I got there, they'd already left."},
+ {c:"as soon as", es:"Apenas sepa algo, te aviso.", en:"As soon as I know something, I'll let you know."},
+ {c:"as long as", es:"Mientras no llueva, vamos.", en:"As long as it doesn't rain, we'll go."},
+ {c:"from time to time", es:"De vez en cuando lo veo.", en:"I see him from time to time."},
+ {c:"ever since", es:"Desde entonces no ha vuelto.", en:"He hasn't come back ever since."},
+ {c:"no longer", es:"Ya no trabaja ahí.", en:"He no longer works there."},
+ {c:"for the time being", es:"Por ahora déjalo así.", en:"Leave it like that for the time being."},
+ {c:"in the meantime", es:"Mientras tanto, sigamos con lo otro.", en:"In the meantime, let's carry on with the other thing."},
+ {c:"that's about it", es:"Y ya, eso es todo.", en:"And that's about it."}]}
+];
+
+const TOPICS = [
+ {t:"ARG", p:"Should people be allowed to work fully remote forever? Take a side and defend it.", r:"Concesiones: 'I take your point, but…', 'on the other hand'."},
+ {t:"NAR", p:"Tell the story of a time you were completely wrong about someone.", r:"Pasado perfecto: 'I had assumed…', 'it turned out…'."},
+ {t:"EXP", p:"Explain how something you use every day actually works — pick something you only half understand.", r:"Vaguedad honesta: 'something like that', 'it has to do with…'."},
+ {t:"ARG", p:"Is it better to be very good at one thing, or decent at many? Argue one side.", r:"Comparativos y 'rather than'."},
+ {t:"NAR", p:"Describe the worst trip you've ever taken, from start to finish.", r:"Secuencia: 'by the time…', 'as soon as…'."},
+ {t:"DESC", p:"Describe the neighborhood you grew up in, to someone who has never been to Colombia.", r:"Hábito pasado: 'we used to…'. Cuidado con 'used to' vs 'be used to'."},
+ {t:"ARG", p:"Should social media have a minimum age of 16? Make the case.", r:"Modalidad de obligación: 'they ought to', 'there's no need to'."},
+ {t:"NAR", p:"Tell about a decision you made that you would make differently now.", r:"Condicional pasado: 'I would have…', 'if I'd known…'."},
+ {t:"EXP", p:"Explain your job to a curious ten-year-old.", r:"Simplificar sin infantilizar. 'All you have to do is…'."},
+ {t:"ARG", p:"Money or time — which would you rather have more of? Defend it.", r:"'I'd rather', 'as far as I'm concerned'."},
+ {t:"NAR", p:"Describe a time you had to give someone bad news.", r:"Suavizar: 'I'm afraid…', 'the thing is…'."},
+ {t:"DESC", p:"Describe a person you admire — without naming a single one of their achievements.", r:"Te obliga a adjetivos y a conducta concreta, no a currículum."},
+ {t:"ARG", p:"Is it ever right to break a promise? Argue a position.", r:"Matiz: 'to a certain extent', 'in a way'."},
+ {t:"NAR", p:"Tell about something you learned the hard way.", r:"'I ended up…', 'I found out…'."},
+ {t:"EXP", p:"Explain a rule or a law in your country that a foreigner would find strange.", r:"'You're supposed to…', 'you don't have to…'."},
+ {t:"ARG", p:"Should governments pay everyone a basic income? Take a side.", r:"Probabilidad: 'it's likely to', 'it's bound to'."},
+ {t:"NAR", p:"Describe the last time you changed your mind about something important.", r:"'It turned out…', 'but then again…'."},
+ {t:"DESC", p:"Describe a meal — the whole experience, not just the food.", r:"Sensorial. Evita listar; narra."},
+ {t:"ARG", p:"Are people today more or less patient than twenty years ago? Argue it.", r:"Comparación con el pasado: 'people used to…', 'no longer'."},
+ {t:"NAR", p:"Tell about a time you were the newest person in a room.", r:"'I had no idea…', 'kind of…'."},
+ {t:"EXP", p:"Explain why you like something that most people around you don't.", r:"Defender gusto: 'the thing about it is…'."},
+ {t:"ARG", p:"Should university be free? Make the strongest case for the side you disagree with.", r:"El ejercicio más duro de la lista. Te fuerza a construir, no a recitar."},
+ {t:"NAR", p:"Describe a conversation that changed how you saw a situation.", r:"Reported speech: 'he said that…', 'she pointed out…'."},
+ {t:"DESC", p:"Describe your ideal working day, hour by hour.", r:"Futuro y rutina: 'I'd start by…', 'and then…'."},
+ {t:"ARG", p:"Is talent or effort more important? Defend your answer.", r:"'Not only… but also', 'as opposed to'."},
+ {t:"NAR", p:"Tell about a time a plan fell apart and what you did.", r:"'It didn't work out', 'I managed to…'."},
+ {t:"EXP", p:"Explain something you're good at to someone who has never tried it.", r:"Instrucciones: 'all you have to do is', 'make sure you…'."},
+ {t:"ARG", p:"Should cities ban cars from downtown? Take a position.", r:"'On the other hand', 'apart from that'."},
+ {t:"NAR", p:"Describe the hardest thing you've ever had to explain to someone.", r:"Reformulación: 'what I mean is…', 'to put it another way…'."},
+ {t:"DESC", p:"Describe a place you go to think.", r:"Frecuencia: 'from time to time', 'ever since'."}
+];
+
+/* ---------- estado: solo el número de día, derivado de la URL o del input ---------- */
+const REVIEW_OFFSETS = [2, 6, 15];
+const NEW_SETS = SETS.length;           // 12
+const $ = s => document.querySelector(s);
+
+function plan(day) {
+  const newSet = (day >= 1 && day <= NEW_SETS) ? SETS[day - 1] : null;
+  const reviews = REVIEW_OFFSETS
+    .map(o => ({ off: o, s: day - o }))
+    .filter(r => r.s >= 1 && r.s <= NEW_SETS)
+    .map(r => ({ off: r.off, set: SETS[r.s - 1] }));
+  const topic = TOPICS[(day - 1) % TOPICS.length];
+  return { newSet, reviews, topic };
+}
+
+function rowHTML(it) {
+  const note = it.note ? `<div class="nt">${it.note}</div>` : '';
+  return `<div class="row"><div class="es">${it.es}</div>` +
+         `<div class="en" tabindex="0" role="button" aria-label="Revelar la frase en inglés">${it.en}</div>${note}</div>`;
+}
+
+function drillHTML(title, sub, items) {
+  return `<div class="drill"><div class="drill-head"><span>${title} <span class="cnt">${sub}</span></span>` +
+         `<button class="revealall">Revelar todo</button></div>` +
+         items.map(rowHTML).join('') + `</div>`;
+}
+
+function render(day) {
+  day = Math.max(0, Math.min(30, day | 0));
+  $('#day').value = day;
+  const isZero = day === 0;
+  $('#day0').classList.toggle('hide', !isZero);
+  $('#dayN').classList.toggle('hide', isZero);
+  if (isZero) { window.scrollTo(0, 0); return; }
+
+  const p = plan(day);
+  $('#dayLabel').textContent = 'Día ' + day;
+  const names = { ARG: 'ARGUMENTATIVA', NAR: 'NARRATIVA', EXP: 'EXPLICATIVA', DESC: 'DESCRIPTIVA' };
+  $('#topicTag').textContent = names[p.topic.t];
+  $('#topicText').textContent = p.topic.p;
+  $('#topicReach').innerHTML = '<span class="hintlab">Vas a necesitar</span>' + p.topic.r;
+
+  // resumen
+  const bits = [];
+  if (p.newSet) bits.push(`<strong>10 nuevas</strong> — ${p.newSet.title}`);
+  else bits.push(`<strong>10 nuevas</strong> — de tu propio log de huecos`);
+  p.reviews.forEach(r => bits.push(`<strong>Repaso</strong> del set ${r.set.n} <span style="color:var(--text-muted)">(hace ${r.off} días)</span>`));
+  const total = (p.newSet ? 10 : 0) + p.reviews.length * 10;
+  bits.push(`<span style="color:var(--text-muted)">${total} frases${p.newSet ? '' : ' del banco'} · unos 20 s cada una</span>`);
+  $('#drillSummary').innerHTML = bits.join('<br>');
+
+  // listas
+  let html = '';
+  if (p.newSet) html += drillHTML(`Nuevas · ${p.newSet.title}`, `set ${p.newSet.n}`, p.newSet.items);
+  p.reviews.forEach(r => { html += drillHTML(`Repaso · ${r.set.title}`, `set ${r.set.n}, hace ${r.off} días`, r.set.items); });
+  if (!html) html = `<div class="card"><p style="margin:0">Hoy no hay repasos programados del banco semilla. Drilléa tus propios 10 chunks del log de ayer.</p></div>`;
+  $('#drills').innerHTML = html;
+  $('#ownMaterial').classList.toggle('hide', !!p.newSet);
+
+  resetTimer();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- revelar ---------- */
+document.addEventListener('click', e => {
+  const en = e.target.closest('.en');
+  if (en) { en.classList.toggle('show'); return; }
+  const all = e.target.closest('.revealall');
+  if (all) {
+    const box = all.closest('.drill');
+    const rows = box.querySelectorAll('.en');
+    const anyHidden = [...rows].some(r => !r.classList.contains('show'));
+    rows.forEach(r => r.classList.toggle('show', anyHidden));
+    all.textContent = anyHidden ? 'Ocultar todo' : 'Revelar todo';
+  }
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('en')) {
+    e.preventDefault(); e.target.classList.toggle('show');
+  }
+});
+
+/* ---------- cronómetro: 5 × (2:00 hablar + 0:30 respiro) ---------- */
+const ROUNDS = 5, SPEAK = 120, REST = 30;
+let tState = null, tick = null;
+
+function fmt(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
+function beep(times) {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    for (let i = 0; i < times; i++) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      const t0 = ctx.currentTime + i * 0.22;
+      o.frequency.value = 660; o.type = 'sine';
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.17);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t0); o.stop(t0 + 0.2);
+    }
+    setTimeout(() => ctx.close && ctx.close(), 1200 + times * 220);
+  } catch (_) {}
+}
+
+function paintDots() {
+  const d = $('#dots'); d.innerHTML = '';
+  for (let i = 1; i <= ROUNDS; i++) {
+    const el = document.createElement('div');
+    el.className = 'dot' + (tState && tState.round > i ? ' done' : (tState && tState.round === i ? ' on' : ''));
+    d.appendChild(el);
+  }
+}
+
+function paint() {
+  if (!tState) { $('#clock').textContent = fmt(SPEAK); $('#phase').textContent = 'Ronda 1 de 5 · listo para empezar'; paintDots(); return; }
+  $('#clock').textContent = fmt(tState.left);
+  $('#phase').textContent = tState.done ? '✓ Las 5 rondas están hechas. Graba nada más — ya tienes la ronda 5.'
+    : tState.resting ? `Respiro · vuelve a empezar el mismo tema en ${tState.left} s`
+    : `Ronda ${tState.round} de ${ROUNDS} · hablando` + (tState.round === 1 || tState.round === 5 ? ' · GRABA ESTA' : '');
+  paintDots();
+}
+
+function step() {
+  if (!tState || tState.paused || tState.done) return;
+  tState.left--;
+  if (tState.left <= 0) {
+    if (tState.resting) {
+      tState.resting = false; tState.round++; tState.left = SPEAK; beep(1);
+    } else {
+      if (tState.round >= ROUNDS) { tState.done = true; tState.left = 0; beep(3); stopTick(); }
+      else { tState.resting = true; tState.left = REST; beep(2); }
+    }
+  }
+  paint();
+}
+
+function startTick() { stopTick(); tick = setInterval(step, 1000); }
+function stopTick() { if (tick) clearInterval(tick); tick = null; }
+
+function resetTimer() { stopTick(); tState = null; $('#tstart').textContent = 'Empezar'; paint(); }
+
+$('#tstart').addEventListener('click', () => {
+  if (!tState || tState.done) {
+    tState = { round: 1, left: SPEAK, resting: false, paused: false, done: false };
+    beep(1); startTick(); $('#tstart').textContent = 'Pausar';
+  } else {
+    tState.paused = !tState.paused;
+    $('#tstart').textContent = tState.paused ? 'Continuar' : 'Pausar';
+  }
+  paint();
+});
+$('#tskip').addEventListener('click', () => {
+  if (!tState || tState.done) return;
+  tState.left = 1; step();
+});
+$('#treset').addEventListener('click', resetTimer);
+
+/* ---------- copiar ---------- */
+document.addEventListener('click', async e => {
+  const b = e.target.closest('.copybtn'); if (!b) return;
+  const el = document.getElementById(b.dataset.copy);
+  const txt = el.value !== undefined ? el.value : el.textContent;
+  const old = b.textContent;
+  try { await navigator.clipboard.writeText(txt); b.textContent = '✓ Copiado'; }
+  catch (_) { el.select && el.select(); b.textContent = 'Selecciona y copia'; }
+  setTimeout(() => { b.textContent = old; }, 1600);
+});
+
+/* ---------- navegación ---------- */
+$('#prev').addEventListener('click', () => render((+$('#day').value || 1) - 1));
+$('#next').addEventListener('click', () => render((+$('#day').value || 1) + 1));
+$('#go0').addEventListener('click', () => render(0));
+$('#day').addEventListener('change', () => render(+$('#day').value || 1));
+
+/* ---------- banco completo ---------- */
+$('#fullbank').innerHTML = SETS.map(s =>
+  `<div style="margin-bottom:18px"><div style="font-size:13px;font-weight:650;margin-bottom:6px">Set ${s.n} · ${s.title}</div>` +
+  `<table><tbody>` + s.items.map(i =>
+    `<tr><td style="width:34%;font-size:14px">${i.c}</td><td style="font-size:14px">${i.en}` +
+    (i.note ? `<div style="font-size:12.5px;color:var(--text-muted);margin-top:3px">${i.note}</div>` : '') +
+    `</td></tr>`).join('') + `</tbody></table></div>`).join('');
+
+render(1);
+</script>
+</body>
+</html>
