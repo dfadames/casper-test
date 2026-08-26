@@ -378,8 +378,8 @@ var store = {
   get: function (k, d) { try { var v = localStorage.getItem("sp_" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set: function (k, v) { try { localStorage.setItem("sp_" + k, JSON.stringify(v)); } catch (e) {} }
 };
-function blank() { return { rondas:0, dicc:[], trampa:false, reto:[], hueco:"",
-  iaN:"", iaFix:"", sprint:"", escrito:false, cierre:false }; }
+function blank() { return { rondas:0, dicc:[], diccMiss:[], trampa:false, reto:[], hueco:"",
+  iaN:"", iaFix:"", iaN2:"", iaFix2:"", sprint:"", escrito:false, cierre:false }; }
 var S = blank();
 
 /* ══ PROMPTS FOR THE AI ══ */
@@ -681,7 +681,7 @@ function vHoy() {
       '<p class="dim">' + esc(l.cierre.consigna) + "</p>" +
       iaBox("Have the AI grade this too", "Same method: leave it listening.",
         ["Open your AI in voice mode and paste it the prompt.", "Talk for two minutes.", "Write the score here."],
-        pCierre(l.cierre.consigna)) +
+        pCierre(l.cierre.consigna), "close") +
       '<button class="btn go wide" id="ciDone">Done, I spoke</button>' +
       '<p class="why">Every session ends by speaking, whatever type it is. That is what stops a week of vocabulary ' +
       "and writing from going by without you opening your mouth.</p>");
@@ -702,17 +702,17 @@ function vHoy() {
   return h;
 }
 
-function iaBox(title, sub, pasos, prompt) {
+function iaBox(title, sub, pasos, prompt, key) {
   var k = "x" + (iaBox.n = (iaBox.n || 0) + 1);
-  return '<div class="ia"><h4>' + title + '</h4><p class="st">' + sub + "</p>" +
+  return '<div class="ia" data-key="' + (key || "main") + '"><h4>' + title + '</h4><p class="st">' + sub + "</p>" +
     "<ol>" + pasos.map(function (p) { return "<li>" + p + "</li>"; }).join("") + "</ol>" +
     '<div class="pbox" id="pb_' + k + '">' + esc(prompt) + "</div>" +
     '<button class="btn wide" data-cp="pb_' + k + '">Copy the prompt</button>' +
-    '<div class="grade"><div class="fld n"><label for="iaN">Score</label>' +
-    '<select id="iaN"><option value="">—</option>' +
+    '<div class="grade"><div class="fld n"><label for="iaN_' + k + '">Score</label>' +
+    '<select id="iaN_' + k + '"><option value="">—</option>' +
     [1,2,3,4,5,6,7,8,9,10].map(function (n) { return '<option value="' + n + '">' + n + "/10</option>"; }).join("") +
-    '</select></div><div class="fld"><label for="iaF">What to fix, per the AI</label>' +
-    '<input type="text" id="iaF" placeholder="pausing before every new clause; \'used to\'"></div></div></div>';
+    '</select></div><div class="fld"><label for="iaF_' + k + '">What to fix, per the AI</label>' +
+    '<input type="text" id="iaF_' + k + '" placeholder="pausing before every new clause; \'used to\'"></div></div></div>';
 }
 
 function step(k, nm, sb, cue, body) {
@@ -887,11 +887,25 @@ function report() {
     ? S.sprint + " of " + l.sprint.items.length + " in " + l.sprint.segundos + "s" : "no") + "\n";
   if (l.ensayo) t += "Essay: " + (S.escrito ? l.ensayo.palabras + " words" : "no") + "\n";
   if (l.cierre) t += "Spoken close: " + (S.cierre ? "yes" : "no") + "\n";
-  if (S.iaN) t += "AI score: " + S.iaN + "/10\n";
-  if (S.iaFix) t += "To fix: " + S.iaFix + "\n";
+  if (S.iaN || S.iaFix) {
+    if (S.iaN) t += "AI score: " + S.iaN + "/10\n";
+    if (S.iaFix) t += "To fix: " + S.iaFix + "\n";
+    if (S.iaN2) t += "Close AI score: " + S.iaN2 + "/10\n";
+    if (S.iaFix2) t += "Close to fix: " + S.iaFix2 + "\n";
+  } else {
+    if (S.iaN2) t += "AI score: " + S.iaN2 + "/10\n";
+    if (S.iaFix2) t += "To fix: " + S.iaFix2 + "\n";
+  }
   t += "Expressions: " + (S.dicc || []).length + "/" + (l.diccionario || []).length + "\n";
+  var dm = (S.diccMiss || []).filter(function (i) { return l.diccionario && l.diccionario[i]; });
+  if (dm.length) t += "  missed:\n" + dm.map(function (i) {
+    return "  · " + l.diccionario[i].chunk + " → " + l.diccionario[i].en; }).join("\n") + "\n";
   t += "Trap: " + (S.trampa ? "yes" : "no") + "\n";
   t += "Quick round: " + (ans ? hits + "/" + (l.reto || []).length : "no") + "\n";
+  var qm = [];
+  (l.reto || []).forEach(function (r, i) { if ((S.reto || [])[i] === "miss") qm.push(i); });
+  if (qm.length) t += "  missed:\n" + qm.map(function (i) {
+    return "  · " + l.reto[i].es + " → " + l.reto[i].en; }).join("\n") + "\n";
   t += "Got stuck on: " + ((S.hueco || "").trim() || "—");
   o.textContent = t;
   var r = $("#ready"); if (r) r.classList.toggle("hide", nDone() < nParts());
@@ -982,11 +996,12 @@ function wire() {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dk.f = !dk.f; dkPaint(); } });
   $("#dPrev").addEventListener("click", function () { if (dk.i > 0) { dk.i--; dk.f = false; dkPaint(); } });
   $("#dNext").addEventListener("click", function () { if (dk.i < dkItems().length - 1) { dk.i++; dk.f = false; dkPaint(); } });
-  function seen() {
+  function seen(miss) {
     if ((S.dicc || []).indexOf(dk.i) < 0) { S.dicc = (S.dicc || []).concat([dk.i]); save(); }
+    if (miss && (S.diccMiss || []).indexOf(dk.i) < 0) { S.diccMiss = (S.diccMiss || []).concat([dk.i]); save(); }
     dk.f = false; if (dk.i < dkItems().length - 1) dk.i++; dkPaint(); }
-  $("#dHit").addEventListener("click", seen);
-  $("#dMiss").addEventListener("click", seen);
+  $("#dHit").addEventListener("click", function () { seen(false); });
+  $("#dMiss").addEventListener("click", function () { seen(true); });
 
   $("#trShow").addEventListener("click", function () {
     $$("#trEx .q1").forEach(function (r) { r.setAttribute("data-r", "1"); });
@@ -1010,9 +1025,13 @@ function wire() {
   if ($("#ciDone")) { if (S.cierre) $("#ciDone").textContent = "✓ Marked";
     $("#ciDone").addEventListener("click", function () { S.cierre = true; save(); this.textContent = "✓ Marked"; }); }
 
-  var n = $("#iaN"), f = $("#iaF");
-  if (n) { n.value = S.iaN || ""; n.addEventListener("change", function () { S.iaN = n.value; save(); }); }
-  if (f) { f.value = S.iaFix || ""; f.addEventListener("input", function () { S.iaFix = f.value; save(); }); }
+  $$(".ia").forEach(function (box) {
+    var close = box.getAttribute("data-key") === "close";
+    var nk = close ? "iaN2" : "iaN", fk = close ? "iaFix2" : "iaFix";
+    var n = box.querySelector("select"), f = box.querySelector("input[type=text]");
+    if (n) { n.value = S[nk] || ""; n.addEventListener("change", function () { S[nk] = n.value; save(); }); }
+    if (f) { f.value = S[fk] || ""; f.addEventListener("input", function () { S[fk] = f.value; save(); }); }
+  });
 
   var gi = $("#gapIn"); gi.value = S.hueco || "";
   gi.addEventListener("input", function () { S.hueco = gi.value; save(); });
